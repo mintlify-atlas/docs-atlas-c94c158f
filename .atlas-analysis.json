@@ -1,0 +1,136 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "Data Structures and Algorithms",
+  "projectDescription": "A comprehensive collection of common data structures and algorithms implementations using modern TypeScript/JavaScript with coding problem solutions.",
+  "theme": "aspen",
+  "primaryColor": "#2563eb",
+  "lightColor": "#3b82f6",
+  "darkColor": "#1e40af",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "running-tests"
+            ]
+          },
+          {
+            "group": "Data Structures",
+            "pages": [
+              "data-structures/overview",
+              "data-structures/array",
+              "data-structures/linked-list",
+              "data-structures/doubly-linked-list",
+              "data-structures/stack",
+              "data-structures/queue",
+              "data-structures/tree",
+              "data-structures/binary-search-tree",
+              "data-structures/avl-tree",
+              "data-structures/binary-heap",
+              "data-structures/graph"
+            ]
+          },
+          {
+            "group": "Algorithms",
+            "pages": [
+              "algorithms/overview"
+            ]
+          },
+          {
+            "group": "Sorting Algorithms",
+            "pages": [
+              "algorithms/sorting/bubble-sort",
+              "algorithms/sorting/insertion-sort",
+              "algorithms/sorting/selection-sort",
+              "algorithms/sorting/merge-sort",
+              "algorithms/sorting/quick-sort",
+              "algorithms/sorting/heap-sort",
+              "algorithms/sorting/bucket-sort",
+              "algorithms/sorting/counting-sort",
+              "algorithms/sorting/radix-sort",
+              "algorithms/sorting/cycle-sort",
+              "algorithms/sorting/topological-sort"
+            ]
+          },
+          {
+            "group": "Searching Algorithms",
+            "pages": [
+              "algorithms/searching/linear-search",
+              "algorithms/searching/binary-search",
+              "algorithms/searching/breadth-first-search",
+              "algorithms/searching/depth-first-search"
+            ]
+          },
+          {
+            "group": "Graph Algorithms",
+            "pages": [
+              "algorithms/graph/dijkstra"
+            ]
+          },
+          {
+            "group": "Design Techniques",
+            "pages": [
+              "algorithms/design-techniques/divide-and-conquer",
+              "algorithms/design-techniques/dynamic-programming",
+              "algorithms/design-techniques/greedy",
+              "algorithms/design-techniques/backtracking"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Problems",
+        "groups": [
+          {
+            "group": "Coding Problems",
+            "pages": [
+              "problems/overview",
+              "problems/by-data-structure",
+              "problems/by-technique"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "10+ sorting algorithms with detailed implementations",
+    "11 data structures including trees, graphs, and heaps",
+    "20+ solved coding problems with test cases",
+    "Algorithm design patterns (divide & conquer, dynamic programming, greedy, backtracking)",
+    "Modern TypeScript implementations with comprehensive test coverage",
+    "Graph algorithms including Dijkstra's shortest path"
+  ],
+  "publicApiSurface": [
+    "SinglyLinkedList",
+    "DoublyLinkedList",
+    "Stack",
+    "Queue",
+    "Tree",
+    "BinarySearchTree",
+    "AVLTree",
+    "BinaryHeap",
+    "Graph",
+    "bubbleSort",
+    "insertionSort",
+    "selectionSort",
+    "mergeSort",
+    "quickSort",
+    "heapSort",
+    "bucketSort",
+    "countingSort",
+    "radixSort",
+    "cycleSort",
+    "topologicalSort",
+    "linearSearch",
+    "binarySearch",
+    "breadthFirstSearch",
+    "depthFirstSearch",
+    "dijkstra"
+  ]
+}
