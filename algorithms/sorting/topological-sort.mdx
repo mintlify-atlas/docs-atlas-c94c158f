@@ -1,0 +1,498 @@
+---
+title: 'Topological Sort'
+description: 'Graph algorithm that produces a linear ordering of vertices in a directed acyclic graph (DAG)'
+---
+
+## Overview
+
+Topological Sort is a graph algorithm that produces a linear ordering of vertices in a directed acyclic graph (DAG) such that for every directed edge (u, v), vertex u comes before vertex v in the ordering. It is commonly used for scheduling tasks, resolving dependencies, and determining the order of compilation in build systems.
+
+<Warning>
+Topological Sort only works on **Directed Acyclic Graphs (DAGs)**. If the graph contains a cycle, a valid topological ordering does not exist.
+</Warning>
+
+## Implementation
+
+```typescript
+import { Graph } from '../../../data-structures/graph/graph';
+import { Vertex } from '../../../data-structures/graph/vertex';
+import { Stack } from '../../../data-structures/stack/stack';
+
+function visit(vertex: Vertex, visited: Set<number | string>, ordered: Stack) {
+  visited.add(vertex.value);
+
+  for (const edge of vertex.edges) {
+    if (!visited.has(edge.value)) {
+      visit(edge, visited, ordered);
+    }
+  }
+
+  ordered.push(vertex.value);
+}
+
+export function topSort(graph: Graph) {
+  const visited = new Set<number | string>();
+  const ordered = new Stack();
+
+  for (const vertex of graph.vertices) {
+    if (!visited.has(vertex.value)) {
+      visit(vertex, visited, ordered);
+    }
+  }
+
+  const output = [];
+  while (!ordered.isEmpty()) {
+    output.push(ordered.pop());
+  }
+
+  return output;
+}
+```
+
+## How It Works
+
+1. **Initialize Structures**: Create a visited set to track processed vertices and a stack to store the result
+2. **Visit Each Vertex**: For each unvisited vertex in the graph, perform a depth-first search
+3. **Recursive DFS**: Recursively visit all unvisited neighbors of the current vertex
+4. **Post-order Addition**: After visiting all descendants, push the vertex onto the stack
+5. **Build Result**: Pop all vertices from the stack to get the topological ordering
+
+<Note>
+This implementation uses **DFS-based topological sort** with post-order traversal. Vertices are added to the stack after all their descendants are processed, ensuring correct dependency order.
+</Note>
+
+## Complexity Analysis
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    - **Best Case**: O(V + E)
+    - **Average Case**: O(V + E)
+    - **Worst Case**: O(V + E)
+    - Where V = vertices, E = edges
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    - **Space**: O(V) for visited set and stack
+    - **Call Stack**: O(V) for recursion depth
+    - **Total**: O(V)
+  </Card>
+</CardGroup>
+
+## Usage Example
+
+```typescript
+import { Graph } from './graph';
+import { topSort } from './topological-sort';
+
+// Example 1: Course prerequisites
+const courses = new Graph(true); // directed graph
+
+// Add courses and prerequisites
+courses.addEdge('Math101', 'Math201');
+courses.addEdge('Math101', 'Physics101');
+courses.addEdge('Math201', 'Math301');
+courses.addEdge('Physics101', 'Physics201');
+
+const order = topSort(courses);
+console.log(order);
+// Possible output: ['Math101', 'Math201', 'Physics101', 'Math301', 'Physics201']
+// or: ['Math101', 'Physics101', 'Math201', 'Physics201', 'Math301']
+
+// Example 2: Build system dependencies
+const build = new Graph(true);
+
+build.addEdge('compile', 'link');
+build.addEdge('link', 'package');
+build.addEdge('test', 'deploy');
+build.addEdge('package', 'test');
+
+const buildOrder = topSort(build);
+console.log(buildOrder);
+// Output: ['compile', 'link', 'package', 'test', 'deploy']
+
+// Example 3: Task scheduling
+const tasks = new Graph(true);
+
+tasks.addEdge('wake', 'shower');
+tasks.addEdge('shower', 'dress');
+tasks.addEdge('dress', 'breakfast');
+tasks.addEdge('breakfast', 'work');
+
+const schedule = topSort(tasks);
+console.log(schedule);
+// Output: ['wake', 'shower', 'dress', 'breakfast', 'work']
+```
+
+## Visual Example
+
+Let's trace through a graph representing course prerequisites:
+
+```
+Graph (edges represent "prerequisite for"):
+    A → B → D
+    ↓   ↓
+    C → E
+
+Adjacency List:
+  A: [B, C]
+  B: [D, E]
+  C: [E]
+  D: []
+  E: []
+
+DFS Traversal:
+
+Step 1: Visit A
+  Mark A as visited
+  Recursively visit B
+    Mark B as visited
+    Recursively visit D
+      Mark D as visited
+      D has no edges, push D to stack
+      Stack: [D]
+    Recursively visit E
+      Mark E as visited
+      E has no edges, push E to stack
+      Stack: [D, E]
+    All B's neighbors visited, push B to stack
+    Stack: [D, E, B]
+  Recursively visit C
+    Mark C as visited
+    Try to visit E (already visited, skip)
+    All C's neighbors visited, push C to stack
+    Stack: [D, E, B, C]
+  All A's neighbors visited, push A to stack
+  Stack: [D, E, B, C, A]
+
+Step 2: All vertices visited
+
+Step 3: Pop from stack to get topological order
+  Result: [A, C, B, E, D]
+
+Valid topological orderings:
+  - A, C, B, E, D
+  - A, B, C, E, D
+  - A, B, E, C, D
+  (and others - multiple valid orderings may exist)
+```
+
+## Characteristics
+
+<AccordionGroup>
+  <Accordion title="DAG Requirement">
+    Only works on **Directed Acyclic Graphs**. Cannot topologically sort a graph with cycles.
+  </Accordion>
+  
+  <Accordion title="Multiple Solutions">
+    Most graphs have **multiple valid** topological orderings. The algorithm returns one of them.
+  </Accordion>
+  
+  <Accordion title="Linear Time">
+    Runs in **O(V + E)** time - visits each vertex once and each edge once.
+  </Accordion>
+  
+  <Accordion title="Cycle Detection">
+    Can be modified to **detect cycles** by tracking vertices in the current recursion stack.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use
+
+<Check>
+Topological Sort is essential for any problem involving ordering with dependencies.
+</Check>
+
+**Good for:**
+- Task scheduling with dependencies
+- Course prerequisite planning
+- Build system ordering (makefile dependencies)
+- Spreadsheet formula evaluation
+- Package/module dependency resolution
+- Compiler optimization (instruction scheduling)
+- Project management (PERT/CPM)
+
+**Requirements:**
+- Graph must be directed
+- Graph must be acyclic (DAG)
+- Need a linear ordering respecting dependencies
+
+## Algorithm Variants
+
+### 1. DFS-Based (Shown Above)
+
+**Advantages:**
+- Simple implementation
+- Natural recursion
+- Easy to understand
+
+**Disadvantages:**
+- Requires recursion (stack depth)
+- Result is in reverse post-order
+
+### 2. Kahn's Algorithm (BFS-Based)
+
+```typescript
+function topSortKahn(graph: Graph) {
+  const inDegree = new Map<number | string, number>();
+  const queue: Vertex[] = [];
+  const result = [];
+
+  // Calculate in-degree for each vertex
+  for (const vertex of graph.vertices) {
+    if (!inDegree.has(vertex.value)) {
+      inDegree.set(vertex.value, 0);
+    }
+    for (const edge of vertex.edges) {
+      inDegree.set(edge.value, (inDegree.get(edge.value) || 0) + 1);
+    }
+  }
+
+  // Add vertices with in-degree 0 to queue
+  for (const vertex of graph.vertices) {
+    if (inDegree.get(vertex.value) === 0) {
+      queue.push(vertex);
+    }
+  }
+
+  // Process queue
+  while (queue.length > 0) {
+    const vertex = queue.shift()!;
+    result.push(vertex.value);
+
+    // Reduce in-degree for neighbors
+    for (const edge of vertex.edges) {
+      inDegree.set(edge.value, inDegree.get(edge.value)! - 1);
+      if (inDegree.get(edge.value) === 0) {
+        queue.push(edge);
+      }
+    }
+  }
+
+  // If result has fewer vertices than graph, there's a cycle
+  if (result.length !== graph.vertices.length) {
+    throw new Error('Graph contains a cycle');
+  }
+
+  return result;
+}
+```
+
+<Info>
+**Kahn's Algorithm Advantages:**
+- Iterative (no recursion)
+- Can detect cycles easily
+- Natural forward order
+- Can process vertices level-by-level
+</Info>
+
+## Cycle Detection
+
+Topological sort can be modified to detect cycles:
+
+```typescript
+function hasCycle(graph: Graph): boolean {
+  const visited = new Set<number | string>();
+  const recursionStack = new Set<number | string>();
+
+  function visit(vertex: Vertex): boolean {
+    visited.add(vertex.value);
+    recursionStack.add(vertex.value);
+
+    for (const edge of vertex.edges) {
+      if (!visited.has(edge.value)) {
+        if (visit(edge)) return true;
+      } else if (recursionStack.has(edge.value)) {
+        // Found a back edge - cycle detected
+        return true;
+      }
+    }
+
+    recursionStack.delete(vertex.value);
+    return false;
+  }
+
+  for (const vertex of graph.vertices) {
+    if (!visited.has(vertex.value)) {
+      if (visit(vertex)) return true;
+    }
+  }
+
+  return false;
+}
+```
+
+## Code Walkthrough
+
+### Helper Function: `visit()`
+
+```typescript
+function visit(vertex: Vertex, visited: Set<number | string>, ordered: Stack) {
+  // Mark current vertex as visited
+  visited.add(vertex.value);
+
+  // Recursively visit all unvisited neighbors
+  for (const edge of vertex.edges) {
+    if (!visited.has(edge.value)) {
+      visit(edge, visited, ordered);
+    }
+  }
+
+  // After visiting all descendants, add vertex to stack
+  // This ensures dependencies are processed before dependents
+  ordered.push(vertex.value);
+}
+```
+
+The key insight: vertices are added to the stack **after** all their descendants are processed, ensuring correct topological order.
+
+### Main Function: `topSort()`
+
+```typescript
+export function topSort(graph: Graph) {
+  const visited = new Set<number | string>();  // Track visited vertices
+  const ordered = new Stack();                  // Store result
+
+  // Process each vertex
+  for (const vertex of graph.vertices) {
+    if (!visited.has(vertex.value)) {
+      visit(vertex, visited, ordered);
+    }
+  }
+
+  // Extract result from stack (reverses post-order to get topological order)
+  const output = [];
+  while (!ordered.isEmpty()) {
+    output.push(ordered.pop());
+  }
+
+  return output;
+}
+```
+
+## Real-World Applications
+
+<Info>
+**Where Topological Sort is Used:**
+
+1. **Build Systems**: Determine compilation order (Make, Gradle, Maven)
+2. **Package Managers**: Resolve installation order (npm, pip, apt)
+3. **Spreadsheets**: Evaluate formulas in dependency order
+4. **Course Planning**: Schedule courses respecting prerequisites
+5. **Project Management**: Task scheduling (PERT charts)
+6. **Compiler Design**: Instruction scheduling, register allocation
+7. **Data Processing**: ETL pipeline ordering
+8. **Module Loading**: Resolve import dependencies
+9. **Database Migrations**: Order schema changes
+10. **Symbolic Computation**: Expression evaluation order
+</Info>
+
+## Example: Course Prerequisites
+
+```typescript
+import { Graph } from './graph';
+import { topSort } from './topological-sort';
+
+// Create course dependency graph
+const courses = new Graph(true);
+
+// Add prerequisites (edge A → B means "A is prerequisite for B")
+courses.addEdge('CS101', 'CS201');  // CS101 before CS201
+courses.addEdge('CS101', 'CS225');  // CS101 before CS225
+courses.addEdge('CS201', 'CS301');  // CS201 before CS301
+courses.addEdge('CS201', 'CS321');  // CS201 before CS321
+courses.addEdge('CS225', 'CS301');  // CS225 before CS301
+courses.addEdge('MATH101', 'CS225'); // MATH101 before CS225
+
+// Get valid ordering
+const courseOrder = topSort(courses);
+console.log('Take courses in this order:', courseOrder);
+// Possible output: ['MATH101', 'CS101', 'CS225', 'CS201', 'CS321', 'CS301']
+
+// Another valid ordering: ['CS101', 'MATH101', 'CS201', 'CS225', 'CS321', 'CS301']
+// Both satisfy all prerequisites!
+```
+
+## Performance Insights
+
+<Tip>
+**Time Complexity Breakdown:**
+
+For a graph with V vertices and E edges:
+
+**DFS Approach:**
+- Visit each vertex once: O(V)
+- Traverse each edge once: O(E)
+- Stack operations: O(V)
+- **Total: O(V + E)**
+
+**Kahn's Approach:**
+- Calculate in-degrees: O(V + E)
+- Queue operations: O(V)
+- Process edges: O(E)
+- **Total: O(V + E)**
+
+Both algorithms have the same asymptotic complexity!
+</Tip>
+
+## Comparison: DFS vs Kahn's Algorithm
+
+| Feature | DFS-Based | Kahn's Algorithm |
+|---------|-----------|------------------|
+| Implementation | Recursive | Iterative |
+| Stack Usage | O(V) recursion | O(V) queue |
+| Cycle Detection | Requires modification | Built-in |
+| Order | Reverse post-order | Natural forward order |
+| Multiple Sources | Processes one path at a time | Can process all sources in parallel |
+| Intuition | Depth-first exploration | Process nodes with no dependencies |
+| Use Case | Simple, elegant | Production, cycle detection |
+
+## Common Pitfalls
+
+<Warning>
+**Common Mistakes:**
+
+1. **Using on Cyclic Graphs**: Topological sort only works on DAGs
+2. **Assuming Unique Order**: Multiple valid orderings usually exist
+3. **Not Checking for Cycles**: Always validate input is acyclic
+4. **Incorrect Edge Direction**: Edge u → v means u before v, not v before u
+5. **Missing Vertices**: Ensure all vertices are included in the graph
+</Warning>
+
+## Leetcode Problems
+
+<Info>
+**Practice Problems:**
+
+- **210. Course Schedule II**: Classic topological sort
+- **207. Course Schedule**: Cycle detection variant
+- **269. Alien Dictionary**: Infer ordering from sequences
+- **310. Minimum Height Trees**: Multiple topological orderings
+- **444. Sequence Reconstruction**: Verify unique topological order
+- **1203. Sort Items by Groups**: Topological sort with grouping
+</Info>
+
+## Strongly Connected Components
+
+<Note>
+Topological sort is closely related to **Strongly Connected Components (SCCs)**:
+
+- In a DAG, each vertex is its own SCC
+- Kosaraju's and Tarjan's algorithms use topological sort concepts
+- Can compress SCCs into a DAG and then topologically sort
+
+This relationship is useful for analyzing graph structure and dependencies.
+</Note>
+
+## Summary
+
+Topological Sort is a fundamental graph algorithm that:
+
+- Orders vertices in a DAG respecting edge directions
+- Runs in linear O(V + E) time
+- Has multiple valid solutions for most graphs
+- Is essential for dependency resolution
+- Can be implemented with DFS (elegant) or BFS/Kahn's (robust)
+- Fails on graphs with cycles
+
+<Check>
+**Key Takeaway**: Whenever you have tasks with dependencies, think topological sort!
+</Check>

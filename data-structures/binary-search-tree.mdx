@@ -1,0 +1,463 @@
+---
+title: 'Binary Search Tree'
+description: 'BST implementation with insertion, search, and traversal operations'
+icon: 'code-branch'
+---
+
+# Binary Search Tree
+
+A binary tree where each node has at most two children, and for every node, all values in the left subtree are less than the node's value, and all values in the right subtree are greater.
+
+## Overview
+
+Binary Search Trees (BST) provide O(log n) average-case performance for search, insertion, and deletion operations. The BST property enables efficient searching by eliminating half of the remaining nodes at each step.
+
+## Implementation
+
+### Node Structure
+
+```typescript
+class Node<T = number> {
+  leftNode: Node<T> | null = null;
+  rightNode: Node<T> | null = null;
+  value: T;
+
+  constructor(value: T) {
+    this.value = value;
+  }
+}
+```
+
+**Reference**: [node.ts:1-10](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/node.ts)
+
+### Class Definition
+
+```typescript
+class BinarySearchTree<T = number> {
+  root: Node<T> | null = null;
+  
+  // ... methods
+}
+```
+
+**Reference**: [binary-search-tree.ts:3-4](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/binary-search-tree.ts)
+
+## BST Property
+
+<Info>
+**BST Invariant**: For any node N:
+- All values in the left subtree < N.value
+- All values in the right subtree > N.value
+- Both left and right subtrees are also BSTs
+</Info>
+
+```
+       8
+      / \
+     3   10
+    / \    \
+   1   6    14
+      / \   /
+     4   7 13
+
+Left subtree of 8: {1,3,4,6,7} - all < 8
+Right subtree of 8: {10,13,14} - all > 8
+```
+
+## API Reference
+
+### insert(key: T): boolean
+
+Inserts a new value into the tree while maintaining BST property.
+
+```typescript
+const bst = new BinarySearchTree<number>();
+bst.insert(8);
+bst.insert(3);
+bst.insert(10);
+bst.insert(1);
+bst.insert(6);
+
+// Tree structure:
+//       8
+//      / \
+//     3   10
+//    / \
+//   1   6
+```
+
+**Complexity**: 
+- Average: O(log n)
+- Worst (skewed tree): O(n)
+
+**Reference**: [binary-search-tree.ts:6-36](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/binary-search-tree.ts)
+
+---
+
+### search(key: T): boolean
+
+Searches for a value in the tree.
+
+```typescript
+const bst = new BinarySearchTree<number>();
+bst.insert(8);
+bst.insert(3);
+bst.insert(10);
+
+console.log(bst.search(3));  // true
+console.log(bst.search(15)); // false
+```
+
+**Complexity**:
+- Average: O(log n)
+- Worst (skewed tree): O(n)
+
+**Reference**: [binary-search-tree.ts:80-98](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/binary-search-tree.ts)
+
+---
+
+### min(): T | undefined
+
+Finds the minimum value in the tree (leftmost node).
+
+```typescript
+const bst = new BinarySearchTree<number>();
+bst.insert(8);
+bst.insert(3);
+bst.insert(10);
+bst.insert(1);
+
+console.log(bst.min()); // 1
+```
+
+**Complexity**: O(h) where h is the height of the tree
+
+**Reference**: [binary-search-tree.ts:100-112](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/binary-search-tree.ts)
+
+---
+
+### max(): T | undefined
+
+Finds the maximum value in the tree (rightmost node).
+
+```typescript
+const bst = new BinarySearchTree<number>();
+bst.insert(8);
+bst.insert(3);
+bst.insert(10);
+bst.insert(14);
+
+console.log(bst.max()); // 14
+```
+
+**Complexity**: O(h) where h is the height of the tree
+
+**Reference**: [binary-search-tree.ts:114-126](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/binary-search-tree.ts)
+
+---
+
+### remove(key: T): boolean
+
+Removes a node from the tree while maintaining BST property.
+
+```typescript
+const bst = new BinarySearchTree<number>();
+bst.insert(8);
+bst.insert(3);
+bst.insert(10);
+bst.insert(1);
+
+bst.remove(3); // true
+bst.search(3); // false
+```
+
+**Handles three cases**:
+1. **Leaf node**: Simply remove
+2. **One child**: Replace with child
+3. **Two children**: Replace with in-order successor (minimum of right subtree)
+
+**Complexity**:
+- Average: O(log n)
+- Worst (skewed tree): O(n)
+
+**Reference**: [binary-search-tree.ts:128-207](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/binary-search-tree.ts)
+
+## Traversal Methods
+
+### In-Order Traversal
+
+Visits nodes in ascending order: left → node → right
+
+```typescript
+const bst = new BinarySearchTree<number>();
+bst.insert(8);
+bst.insert(3);
+bst.insert(10);
+bst.insert(1);
+bst.insert(6);
+
+const values: number[] = [];
+bst.inOrderTraverse((node) => {
+  values.push(node.value);
+});
+
+console.log(values); // [1, 3, 6, 8, 10]
+```
+
+**Use case**: Get sorted values
+
+**Complexity**: O(n)
+
+**Reference**: [binary-search-tree.ts:38-50](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/binary-search-tree.ts)
+
+---
+
+### Pre-Order Traversal
+
+Visits nodes: node → left → right
+
+```typescript
+const values: number[] = [];
+bst.preOrderTraverse((node) => {
+  values.push(node.value);
+});
+
+console.log(values); // [8, 3, 1, 6, 10]
+```
+
+**Use case**: Copy tree structure, prefix expressions
+
+**Complexity**: O(n)
+
+**Reference**: [binary-search-tree.ts:52-64](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/binary-search-tree.ts)
+
+---
+
+### Post-Order Traversal
+
+Visits nodes: left → right → node
+
+```typescript
+const values: number[] = [];
+bst.postOrderTraverse((node) => {
+  values.push(node.value);
+});
+
+console.log(values); // [1, 6, 3, 10, 8]
+```
+
+**Use case**: Delete tree, postfix expressions, calculate tree metrics
+
+**Complexity**: O(n)
+
+**Reference**: [binary-search-tree.ts:66-78](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/binary-search-tree/binary-search-tree.ts)
+
+## Complexity Summary
+
+| Operation | Average | Worst Case | Best Case |
+|-----------|---------|------------|----------|
+| insert | O(log n) | O(n) | O(1) |
+| search | O(log n) | O(n) | O(1) |
+| remove | O(log n) | O(n) | O(1) |
+| min/max | O(log n) | O(n) | O(1) |
+| traversal | O(n) | O(n) | O(n) |
+
+<Warning>
+**Worst case O(n)** occurs when the tree becomes skewed (essentially a linked list):
+
+```
+Inserting in order: 1, 2, 3, 4, 5
+
+1
+ \
+  2
+   \
+    3
+     \
+      4
+       \
+        5
+
+Height = n, making all operations O(n)
+```
+
+Solution: Use a [self-balancing tree](/data-structures/avl-tree)
+</Warning>
+
+## Common Patterns
+
+### Validate BST
+
+```typescript
+function isValidBST<T>(
+  node: Node<T> | null,
+  min: T | null = null,
+  max: T | null = null
+): boolean {
+  if (!node) return true;
+  
+  if ((min !== null && node.value <= min) ||
+      (max !== null && node.value >= max)) {
+    return false;
+  }
+  
+  return isValidBST(node.leftNode, min, node.value) &&
+         isValidBST(node.rightNode, node.value, max);
+}
+```
+
+### Find Closest Value
+
+```typescript
+function findClosestValue(
+  bst: BinarySearchTree<number>,
+  target: number
+): number {
+  let closest = bst.root!.value;
+  let current = bst.root;
+  
+  while (current) {
+    if (Math.abs(target - closest) > Math.abs(target - current.value)) {
+      closest = current.value;
+    }
+    
+    if (target < current.value) {
+      current = current.leftNode;
+    } else if (target > current.value) {
+      current = current.rightNode;
+    } else {
+      break;
+    }
+  }
+  
+  return closest;
+}
+```
+
+### Find Kth Smallest
+
+```typescript
+function kthSmallest(bst: BinarySearchTree<number>, k: number): number {
+  let count = 0;
+  let result = -1;
+  
+  bst.inOrderTraverse((node) => {
+    count++;
+    if (count === k) {
+      result = node.value;
+    }
+  });
+  
+  return result;
+}
+```
+
+### Range Query
+
+```typescript
+function getValuesInRange(
+  node: Node<number> | null,
+  min: number,
+  max: number,
+  result: number[] = []
+): number[] {
+  if (!node) return result;
+  
+  // Only traverse left if we haven't passed the min
+  if (node.value > min) {
+    getValuesInRange(node.leftNode, min, max, result);
+  }
+  
+  // Add current node if in range
+  if (node.value >= min && node.value <= max) {
+    result.push(node.value);
+  }
+  
+  // Only traverse right if we haven't passed the max
+  if (node.value < max) {
+    getValuesInRange(node.rightNode, min, max, result);
+  }
+  
+  return result;
+}
+```
+
+## Use Cases
+
+<Check>
+**BSTs are ideal for:**
+- Maintaining sorted data with frequent insertions/deletions
+- Range queries (find all values between x and y)
+- Finding kth smallest/largest element
+- Auto-complete and spell checkers
+- Priority queues (when balanced)
+</Check>
+
+## Balanced vs Unbalanced
+
+### Balanced BST
+```
+       8
+      / \
+     4   12
+    / \  / \
+   2  6 10 14
+
+Height: 2
+Operations: O(log n)
+```
+
+### Unbalanced (Skewed) BST
+```
+2
+ \
+  4
+   \
+    6
+     \
+      8
+       \
+        10
+
+Height: 4
+Operations: O(n)
+```
+
+<Tip>
+For guaranteed O(log n) performance, use a self-balancing variant like [AVL Tree](/data-structures/avl-tree) or Red-Black Tree.
+</Tip>
+
+## Key Characteristics
+
+<Check>
+**Advantages:**
+- Average O(log n) search, insert, delete
+- Maintains sorted order
+- Efficient range queries
+- In-order traversal gives sorted sequence
+- Simple to implement
+</Check>
+
+<Warning>
+**Disadvantages:**
+- Can degrade to O(n) when unbalanced
+- No guaranteed balance
+- More complex than arrays for simple operations
+- Recursive operations use stack space
+</Warning>
+
+## Related Data Structures
+
+<CardGroup cols={2}>
+  <Card title="AVL Tree" icon="balance-scale" href="/data-structures/avl-tree">
+    Self-balancing BST with guaranteed O(log n)
+  </Card>
+  
+  <Card title="Binary Heap" icon="chart-pyramid" href="/data-structures/binary-heap">
+    Different ordering for priority queues
+  </Card>
+  
+  <Card title="Tree" icon="tree" href="/data-structures/tree">
+    General tree without ordering constraint
+  </Card>
+</CardGroup>

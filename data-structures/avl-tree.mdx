@@ -1,0 +1,489 @@
+---
+title: 'AVL Tree'
+description: 'Self-balancing binary search tree with guaranteed O(log n) operations'
+icon: 'balance-scale'
+---
+
+# AVL Tree
+
+A self-balancing Binary Search Tree where the heights of the left and right subtrees of any node differ by at most 1. Named after inventors Adelson-Velsky and Landis.
+
+## Overview
+
+AVL trees automatically maintain balance through rotations, guaranteeing O(log n) time complexity for search, insertion, and deletion operations. This makes them ideal when you need predictable performance.
+
+## Implementation
+
+AVL Tree extends Binary Search Tree with self-balancing logic:
+
+```typescript
+import { BinarySearchTree } from '../binary-search-tree/binary-search-tree';
+import { Node } from '../binary-search-tree/node';
+
+class AVLTree<T = number> extends BinarySearchTree<T> {
+  // Overrides insert and remove with balancing logic
+}
+```
+
+**Reference**: [avl-tree.ts:1-12](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+## Balance Factor
+
+The balance factor determines if a tree is balanced:
+
+```typescript
+const BALANCE_FACTOR = {
+  unbalancedRight: 1,
+  slightlyUnbalancedRight: 2,
+  balanced: 3,
+  slightlyUnbalancedLeft: 4,
+  unbalancedLeft: 5,
+} as const;
+```
+
+**Balance Factor = height(right) - height(left)**
+
+- `-2`: Unbalanced right (left-heavy)
+- `-1`: Slightly unbalanced right
+- `0`: Balanced
+- `1`: Slightly unbalanced left
+- `2`: Unbalanced left (right-heavy)
+
+**Reference**: [avl-tree.ts:4-10](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+<Info>
+**AVL Property**: For every node, the balance factor must be -1, 0, or 1.
+If it becomes -2 or 2, the tree is rebalanced through rotations.
+</Info>
+
+## API Reference
+
+### insert(key: T): boolean
+
+Inserts a value and automatically balances the tree.
+
+```typescript
+const avl = new AVLTree<number>();
+avl.insert(10);
+avl.insert(20);
+avl.insert(30);
+
+// Without balancing (BST):
+// 10
+//   \
+//    20
+//      \
+//       30
+
+// With balancing (AVL):
+//     20
+//    /  \
+//   10   30
+```
+
+**Complexity**: O(log n) guaranteed
+
+**Reference**: [avl-tree.ts:13-66](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+---
+
+### remove(key: T): boolean
+
+Removes a value from the tree.
+
+```typescript
+const avl = new AVLTree<number>();
+avl.insert(10);
+avl.insert(20);
+avl.insert(30);
+avl.remove(20);
+```
+
+<Warning>
+**Note**: The current implementation's `remove` method does not include self-balancing logic yet. It falls back to the BST remove method.
+</Warning>
+
+**Reference**: [avl-tree.ts:68-71](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+## Rotation Operations
+
+AVL trees use four types of rotations to maintain balance:
+
+### Left-Left (LL) Rotation
+
+Used when the left subtree of the left child is too deep.
+
+```
+Before:        After:
+    3            2
+   /            / \
+  2            1   3
+ /
+1
+
+Balance factor of 3: -2 (unbalanced right)
+```
+
+```typescript
+#leftLeftRotation(node: Node<T> | null) {
+  if (!node) return null;
+
+  const temp = node.leftNode;
+  node.leftNode = temp?.rightNode ?? null;
+  temp && (temp.rightNode = node);
+
+  return temp;
+}
+```
+
+**Reference**: [avl-tree.ts:112-122](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+---
+
+### Right-Right (RR) Rotation
+
+Used when the right subtree of the right child is too deep.
+
+```
+Before:    After:
+1            2
+ \          / \
+  2        1   3
+   \
+    3
+
+Balance factor of 1: 2 (unbalanced left)
+```
+
+```typescript
+#rightRightRotation(node: Node<T> | null) {
+  if (!node) return null;
+
+  const temp = node.rightNode;
+  node.rightNode = temp?.leftNode ?? null;
+  temp && (temp.leftNode = node);
+
+  return temp;
+}
+```
+
+**Reference**: [avl-tree.ts:124-134](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+---
+
+### Left-Right (LR) Rotation
+
+Used when the right subtree of the left child is too deep.
+
+```
+Before:      After RR on 1:    After LL on 3:
+  3              3                  2
+ /              /                  / \
+1              2                  1   3
+ \            /
+  2          1
+
+Double rotation: RR(left child) then LL(node)
+```
+
+```typescript
+#leftRightRotation(node: Node<T>) {
+  node.leftNode = this.#rightRightRotation(node.leftNode);
+  return this.#leftLeftRotation(node);
+}
+```
+
+**Reference**: [avl-tree.ts:136-139](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+---
+
+### Right-Left (RL) Rotation
+
+Used when the left subtree of the right child is too deep.
+
+```
+Before:    After LL on 3:    After RR on 1:
+1              1                  2
+ \              \                / \
+  3              2              1   3
+ /                \
+2                  3
+
+Double rotation: LL(right child) then RR(node)
+```
+
+```typescript
+#rightLeftRotation(node: Node<T>) {
+  node.rightNode = this.#leftLeftRotation(node.rightNode);
+  return this.#rightRightRotation(node);
+}
+```
+
+**Reference**: [avl-tree.ts:141-144](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+## Helper Methods
+
+### getNodeHeight(node)
+
+Calculates the height of a node.
+
+```typescript
+#getNodeHeight(node: Node<T> | null): number {
+  if (node === null) {
+    return -1;
+  }
+
+  return (
+    Math.max(
+      this.#getNodeHeight(node.leftNode),
+      this.#getNodeHeight(node.rightNode)
+    ) + 1
+  );
+}
+```
+
+**Height**: Maximum number of edges from node to a leaf
+- Null node: -1
+- Leaf node: 0
+- Other nodes: max(left height, right height) + 1
+
+**Reference**: [avl-tree.ts:73-84](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+---
+
+### getBalanceFactor(node)
+
+Calculates the balance factor of a node.
+
+```typescript
+#getBalanceFactor(node: Node<T>) {
+  const heightDifference =
+    this.#getNodeHeight(node.rightNode) - this.#getNodeHeight(node.leftNode);
+
+  if (heightDifference === -2) return BALANCE_FACTOR.unbalancedRight;
+  if (heightDifference === -1) return BALANCE_FACTOR.slightlyUnbalancedRight;
+  if (heightDifference === 1) return BALANCE_FACTOR.slightlyUnbalancedLeft;
+  if (heightDifference === 2) return BALANCE_FACTOR.unbalancedLeft;
+  
+  return BALANCE_FACTOR.balanced;
+}
+```
+
+**Reference**: [avl-tree.ts:89-110](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+## Balancing Logic
+
+After each insertion, the tree checks balance and applies rotations:
+
+```typescript
+const balanceFactor = this.#getBalanceFactor(node);
+
+if (balanceFactor === BALANCE_FACTOR.unbalancedLeft) {
+  if (node.leftNode && key < node.leftNode.value) {
+    // Left-Left case
+    node = this.#leftLeftRotation(node)!;
+  } else {
+    // Left-Right case
+    this.#leftRightRotation(node);
+  }
+}
+
+if (balanceFactor === BALANCE_FACTOR.unbalancedRight) {
+  if (node.rightNode && key > node.rightNode.value) {
+    // Right-Right case
+    node = this.#rightRightRotation(node)!;
+  } else {
+    // Right-Left case
+    this.#rightLeftRotation(node);
+  }
+}
+```
+
+**Reference**: [avl-tree.ts:40-62](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/avl-tree/avl-tree.ts)
+
+## Complexity Summary
+
+| Operation | AVL Tree | BST (Average) | BST (Worst) |
+|-----------|----------|---------------|-------------|
+| insert | O(log n) | O(log n) | O(n) |
+| remove | O(log n) | O(log n) | O(n) |
+| search | O(log n) | O(log n) | O(n) |
+| min/max | O(log n) | O(log n) | O(n) |
+
+<Check>
+**Guaranteed Performance**: AVL trees provide O(log n) in all cases, making them superior to unbalanced BSTs for performance-critical applications.
+</Check>
+
+## Example: Building a Balanced Tree
+
+```typescript
+const avl = new AVLTree<number>();
+
+// Insert in sequential order
+for (let i = 1; i <= 7; i++) {
+  avl.insert(i);
+}
+
+// BST would create a skewed tree (height 6):
+// 1
+//  \
+//   2
+//    \
+//     3
+//      ...
+
+// AVL automatically balances (height 2):
+//       4
+//      / \
+//     2   6
+//    / \ / \
+//   1  3 5  7
+```
+
+## Use Cases
+
+<Check>
+**AVL trees excel when:**
+- Search operations significantly outnumber insertions/deletions
+- Guaranteed O(log n) performance is required
+- Dealing with worst-case input patterns (sorted data)
+- Building databases and file systems
+- Implementing associative arrays/maps
+</Check>
+
+## AVL vs Other Balanced Trees
+
+| Feature | AVL Tree | Red-Black Tree | B-Tree |
+|---------|----------|----------------|--------|
+| Balance | Strictly balanced | Loosely balanced | Multi-way balanced |
+| Height | ~1.44 log n | ~2 log n | Variable |
+| Rotations on insert | Up to 2 | Up to 2 | Rare |
+| Search speed | Fastest | Slower | Slower |
+| Insert/Delete speed | Slower | Faster | Fastest |
+| Use case | Search-heavy | Balanced ops | Databases |
+
+<Info>
+**Recommendation**: 
+- Use **AVL** for search-heavy workloads
+- Use **Red-Black** for insert/delete-heavy workloads  
+- Use **B-Tree** for disk-based storage
+</Info>
+
+## Rotation Decision Tree
+
+```
+After insertion, check balance factor:
+
+        Balance Factor
+              |
+    -------------------------
+    |                       |
+  -2 (Left)              +2 (Right)
+    |                       |
+    |                       |
+Check left child      Check right child
+    |                       |
+  -------                 -------
+  |     |                 |     |
+ Left  Right            Left  Right
+  |     |                 |     |
+  LL    LR                RL    RR
+```
+
+## Visualization Example
+
+### Inserting 1, 2, 3 into AVL Tree
+
+```
+Step 1: Insert 1
+  1
+
+Step 2: Insert 2
+  1
+   \
+    2
+
+Step 3: Insert 3
+  1          Balance factor of 1: +2
+   \         -> Unbalanced (Right-Right case)
+    2        -> Perform RR rotation
+     \
+      3
+
+After rotation:
+    2
+   / \
+  1   3
+```
+
+## Implementation Details
+
+### Why AVL Trees Stay Balanced
+
+1. **After every insertion**, calculate balance factors from inserted node to root
+2. **If balance factor is ±2**, tree is unbalanced
+3. **Determine rotation type** based on insertion path
+4. **Perform rotation(s)** to restore balance
+5. **Height reduced by 1** at rotation point
+
+### Space Overhead
+
+AVL trees don't store height/balance factors in nodes (in this implementation). Instead, they calculate them on-demand during balancing:
+
+- **Memory**: Same as BST (no extra fields)
+- **Computation**: Additional O(log n) for height calculations during insertion
+
+## Key Characteristics
+
+<Check>
+**Advantages:**
+- Guaranteed O(log n) for all operations
+- More strictly balanced than Red-Black trees
+- Faster search operations
+- Predictable performance
+- Height never exceeds 1.44 log n
+</Check>
+
+<Warning>
+**Disadvantages:**
+- More rotations on insert/delete than Red-Black trees
+- Slower insertions/deletions
+- More complex implementation
+- Height calculation overhead
+</Warning>
+
+## When to Use AVL Trees
+
+<AccordionGroup>
+  <Accordion title="Frequent Lookups">
+    When search operations far outnumber modifications, AVL's strict balance pays off.
+  </Accordion>
+  
+  <Accordion title="Predictable Performance">
+    When you need guaranteed O(log n) without worst-case degradation.
+  </Accordion>
+  
+  <Accordion title="Sorted Input">
+    When data arrives in sorted or nearly-sorted order, AVL prevents skewing.
+  </Accordion>
+  
+  <Accordion title="Real-time Systems">
+    When worst-case latency must be bounded.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+**Performance Tip**: If your workload has frequent insertions/deletions, consider Red-Black trees instead. They have looser balance requirements and require fewer rotations.
+</Tip>
+
+## Related Data Structures
+
+<CardGroup cols={2}>
+  <Card title="Binary Search Tree" icon="code-branch" href="/data-structures/binary-search-tree">
+    Base class without self-balancing
+  </Card>
+  
+  <Card title="Binary Heap" icon="chart-pyramid" href="/data-structures/binary-heap">
+    Different balance property for priority queues
+  </Card>
+</CardGroup>

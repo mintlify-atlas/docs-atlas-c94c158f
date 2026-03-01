@@ -1,0 +1,342 @@
+---
+title: Running Tests
+description: Learn how to run tests and target specific data structures or algorithms
+---
+
+## Test Framework
+
+This project uses [Jest](https://jestjs.io/) as the testing framework with [SWC](https://swc.rs/) for fast TypeScript transpilation. Every data structure and algorithm includes comprehensive test coverage.
+
+## Running All Tests
+
+To run the complete test suite:
+
+```bash
+npm test
+```
+
+This command will:
+
+1. Compile all TypeScript files using `tsc`
+2. Run all tests with Jest
+3. Display a summary of test results
+
+<Note>
+  The `npm test` script is defined in `package.json` as `"test": "tsc && jest"`
+</Note>
+
+## Running Specific Tests
+
+Jest provides powerful filtering options to run specific tests without executing the entire suite. Use the `--testNamePattern` (or `-t`) flag to target tests by name.
+
+### By Data Structure
+
+Run all tests for a specific data structure:
+
+<CodeGroup>
+
+```bash Array
+npm test -- -t "Array"
+```
+
+```bash Stack
+npm test -- -t "Stack"
+```
+
+```bash Queue
+npm test -- -t "Queue"
+```
+
+```bash Tree
+npm test -- -t "Tree"
+```
+
+```bash Graph
+npm test -- -t "Graph"
+```
+
+```bash Linked List
+npm test -- -t "Linked list"
+```
+
+</CodeGroup>
+
+### By Algorithm
+
+Run all tests for a specific algorithm:
+
+<CodeGroup>
+
+```bash Bubble Sort
+npm test -- -t "Bubble sort"
+```
+
+```bash Quick Sort
+npm test -- -t "Quick sort"
+```
+
+```bash Merge Sort
+npm test -- -t "Merge sort"
+```
+
+```bash Binary Search
+npm test -- -t "Binary search"
+```
+
+```bash Dijkstra
+npm test -- -t "Dijkstra"
+```
+
+</CodeGroup>
+
+### By Problem Number
+
+Run a specific coding problem:
+
+```bash
+npm test -- -t "Array Problem 1"
+```
+
+```bash
+npm test -- -t "Tree Problem 3"
+```
+
+<Tip>
+  Problem tests are located in files with the `.problems.test.ts` suffix. Each problem includes multiple solution implementations with time and space complexity analysis.
+</Tip>
+
+## Running Tests by File
+
+You can also run tests from specific files:
+
+```bash
+npm test algorithms/sorting/quick-sort/quick-sort.test.ts
+```
+
+```bash
+npm test data-structures/stack/stack.problems.test.ts
+```
+
+## Test Output
+
+Successful test runs will display:
+
+```
+PASS  data-structures/array/array.problems.test.ts
+  Array
+    Problem 1
+      ✓ Solution 1 (3 ms)
+      ✓ Solution 2 (in place) (1 ms)
+    Problem 2
+      ✓ Solution 1 (2 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        1.234 s
+```
+
+## Watch Mode
+
+Run tests in watch mode to automatically re-run tests when files change:
+
+```bash
+npx jest --watch
+```
+
+In watch mode, you can press:
+
+- **a** - Run all tests
+- **f** - Run only failed tests
+- **p** - Filter by filename pattern
+- **t** - Filter by test name pattern
+- **q** - Quit watch mode
+
+## Test Coverage
+
+Generate a test coverage report:
+
+```bash
+npx jest --coverage
+```
+
+This will display a coverage summary and create a detailed HTML report in the `coverage/` directory.
+
+## Understanding Test Files
+
+The project contains three types of test files:
+
+<Tabs>
+  <Tab title="Implementation Tests">
+    Files ending in `.test.ts` contain unit tests for the data structure or algorithm implementation.
+
+    ```typescript
+    // stack.test.ts
+    describe("Stack", () => {
+      it("should push items onto the stack", () => {
+        const stack = new Stack();
+        stack.push(1);
+        expect(stack.size()).toBe(1);
+      });
+    });
+    ```
+
+    These tests verify that the implementation works correctly.
+  </Tab>
+
+  <Tab title="Problem Tests">
+    Files ending in `.problems.test.ts` contain solved coding problems.
+
+    ```typescript
+    // array.problems.test.ts
+    describe("Array", () => {
+      describe("Problem 1", () => {
+        /**
+         * Time complexity: O(n²)
+         * Space complexity: O(n²)
+         */
+        test("Solution 1", () => {
+          // Problem solution implementation
+        });
+      });
+    });
+    ```
+
+    These tests demonstrate practical applications and include complexity analysis.
+  </Tab>
+
+  <Tab title="Design Technique Tests">
+    Files in `algorithms/design-techniques/` contain problems organized by algorithm design pattern.
+
+    ```typescript
+    // dynamic-programming.problems.test.ts
+    describe("Dynamic Programming", () => {
+      test("Fibonacci sequence", () => {
+        // DP solution
+      });
+    });
+    ```
+
+    These show how different techniques can be applied to solve problems.
+  </Tab>
+</Tabs>
+
+## Jest Configuration
+
+The Jest configuration is defined in `jest.config.js`:
+
+```javascript
+module.exports = {
+  transform: {
+    "^.+\\.(t|j)s$": ["@swc/jest"],
+  },
+};
+```
+
+This configuration uses SWC to transpile TypeScript and JavaScript files for faster test execution.
+
+## Advanced Jest Options
+
+### Run Tests in Parallel
+
+Jest runs tests in parallel by default. To control the number of workers:
+
+```bash
+npm test -- --maxWorkers=4
+```
+
+### Verbose Output
+
+Display individual test results:
+
+```bash
+npm test -- --verbose
+```
+
+### Clear Cache
+
+If you encounter issues, clear Jest's cache:
+
+```bash
+npx jest --clearCache
+```
+
+### Update Snapshots
+
+If using snapshot tests (not common in this project):
+
+```bash
+npm test -- -u
+```
+
+## Debugging Tests
+
+To debug tests in Node.js:
+
+```bash
+node --inspect-brk node_modules/.bin/jest --runInBand
+```
+
+Then open `chrome://inspect` in Chrome and click "inspect" on the Node process.
+
+<Tip>
+  Use `--runInBand` to run tests serially (one at a time) which is helpful for debugging.
+</Tip>
+
+## Continuous Integration
+
+This project uses GitHub Actions for continuous integration. The CI pipeline runs all tests on every push and pull request to ensure code quality.
+
+You can view the CI status badge in the [README](https://github.com/dfernandeza/data-structures-and-algorithms):
+
+![CI passing](https://github.com/dfernandeza/data-structures-and-algorithms/actions/workflows/ci.yml/badge.svg)
+
+## Common Test Patterns
+
+### Testing Data Structures
+
+Data structure tests typically verify:
+
+- Initialization and construction
+- Adding and removing elements
+- Searching and accessing elements
+- Edge cases (empty structure, single element, etc.)
+- Performance characteristics
+
+### Testing Algorithms
+
+Algorithm tests typically verify:
+
+- Correct output for various inputs
+- Edge cases (empty arrays, single elements, etc.)
+- Sorted vs. unsorted inputs
+- Duplicate elements
+- Performance on large datasets
+
+### Testing Problem Solutions
+
+Problem tests include:
+
+- Multiple solution approaches
+- Time and space complexity in comments
+- Expected output validation
+- Edge case handling
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Data Structures"
+    icon="cubes"
+    href="/data-structures/overview"
+  >
+    Explore the implemented data structures
+  </Card>
+  <Card
+    title="Algorithms"
+    icon="chart-network"
+    href="/algorithms/overview"
+  >
+    Learn about sorting, searching, and graph algorithms
+  </Card>
+</CardGroup>

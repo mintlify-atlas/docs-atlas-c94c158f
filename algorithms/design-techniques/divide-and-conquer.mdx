@@ -1,0 +1,312 @@
+---
+title: 'Divide and Conquer'
+description: 'Learn the divide and conquer technique for breaking down complex problems into manageable subproblems'
+---
+
+## Overview
+
+Divide and conquer is a fundamental algorithm design technique that solves problems by:
+
+1. **Dividing** the problem into smaller subproblems
+2. **Conquering** each subproblem recursively
+3. **Combining** the solutions to solve the original problem
+
+This approach is particularly effective for problems that can be naturally broken down into independent or semi-independent parts.
+
+<Note>
+The divide and conquer technique is the foundation for many classic algorithms like Merge Sort, Quick Sort, and Binary Search.
+</Note>
+
+## How It Works
+
+The divide and conquer strategy follows a three-step pattern:
+
+```typescript
+function divideAndConquer(problem) {
+  // Base case: problem is small enough to solve directly
+  if (problem.isSimple()) {
+    return problem.solve();
+  }
+  
+  // Divide: break problem into subproblems
+  const subproblems = problem.divide();
+  
+  // Conquer: recursively solve each subproblem
+  const solutions = subproblems.map(sub => divideAndConquer(sub));
+  
+  // Combine: merge solutions to get final result
+  return combine(solutions);
+}
+```
+
+## Common Examples
+
+- **Merge Sort**: Divide array in half, sort each half, merge sorted halves
+- **Quick Sort**: Partition around pivot, sort left and right partitions
+- **Binary Search**: Divide search space in half each iteration
+- **Strassen's Matrix Multiplication**: Divide matrices into smaller blocks
+
+## Problem 1: Maximum Subarray Sum
+
+<AccordionGroup>
+  <Accordion title="Problem Description">
+    Given an array that may contain both positive and negative integers, find the sum of the contiguous subarray with the largest sum.
+    
+    **Example:**
+    ```
+    Input:  [-2, -5, 6, -2, -3, 1, 5, -6]
+    Output: 7
+    Explanation: The subarray [6, -2, -3, 1, 5] has the maximum sum of 7
+    ```
+  </Accordion>
+
+  <Accordion title="Solution Approach">
+    The divide and conquer approach considers three possibilities for the maximum subarray:
+    
+    1. It lies entirely in the left half
+    2. It lies entirely in the right half  
+    3. It crosses the middle point
+    
+    We recursively find the maximum for cases 1 and 2, and linearly find the maximum for case 3, then return the maximum of all three.
+  </Accordion>
+
+  <Accordion title="Implementation">
+    ```typescript
+    function middleMaxSum(
+      arr: number[],
+      left: number,
+      middle: number,
+      right: number
+    ): number {
+      // Find maximum sum starting from middle and going left
+      let leftSum = 0;
+      let maxLeftSum = Number.MIN_SAFE_INTEGER;
+      
+      for (let i = middle; i >= left; i--) {
+        leftSum += arr[i];
+        if (leftSum > maxLeftSum) {
+          maxLeftSum = leftSum;
+        }
+      }
+
+      // Find maximum sum starting from middle+1 and going right
+      let rightSum = 0;
+      let maxRightSum = Number.MIN_SAFE_INTEGER;
+      
+      for (let i = middle + 1; i <= right; i++) {
+        rightSum += arr[i];
+        if (rightSum > maxRightSum) {
+          maxRightSum = rightSum;
+        }
+      }
+
+      // Return the maximum of:
+      // 1. Sum crossing the middle
+      // 2. Only left side
+      // 3. Only right side
+      return Math.max(
+        maxLeftSum + maxRightSum,
+        maxLeftSum,
+        maxRightSum
+      );
+    }
+
+    function maxSum(arr: number[], left: number, right: number): number {
+      // Base case: single element
+      if (left === right) {
+        return arr[left];
+      }
+
+      const middle = Math.floor((left + right) / 2);
+
+      // Return maximum of:
+      // 1. Max sum in left half
+      // 2. Max sum crossing the middle
+      // 3. Max sum in right half
+      return Math.max(
+        maxSum(arr, left, middle),
+        middleMaxSum(arr, left, middle, right),
+        maxSum(arr, middle + 1, right)
+      );
+    }
+
+    // Usage
+    const arr = [-2, -5, 6, -2, -3, 1, 5, -6];
+    const result = maxSum(arr, 0, arr.length - 1); // Returns 7
+    ```
+  </Accordion>
+
+  <Accordion title="Complexity Analysis">
+    - **Time Complexity**: O(n log n)
+      - We divide the array into two halves: O(log n) levels
+      - At each level, we do O(n) work to find the crossing maximum
+    
+    - **Space Complexity**: O(log n)
+      - Recursion stack depth
+  </Accordion>
+</AccordionGroup>
+
+## Problem 2: Inversion Count
+
+<AccordionGroup>
+  <Accordion title="Problem Description">
+    Given an array of integers, find the inversion count. An inversion count indicates how far (or close) the array is from being sorted.
+    
+    Two elements `a[i]` and `a[j]` form an inversion if `a[i] > a[j]` and `i < j`.
+    
+    **Example:**
+    ```
+    Input:  [2, 4, 1, 3, 5]
+    Output: 3
+    Explanation: Inversions are (2,1), (4,1), and (4,3)
+    ```
+  </Accordion>
+
+  <Accordion title="Solution Approach">
+    We can modify merge sort to count inversions efficiently. When merging two sorted subarrays:
+    
+    - If an element from the right subarray is smaller than an element from the left subarray, it forms inversions with all remaining elements in the left subarray
+    - Count these inversions during the merge process
+  </Accordion>
+
+  <Accordion title="Implementation">
+    ```typescript
+    function merge(
+      [leftSubArr, leftSwaps]: [number[], number],
+      [rightSubArr, rightSwaps]: [number[], number]
+    ): [number[], number] {
+      const arr: number[] = [];
+      let i = 0;
+      let j = 0;
+      let swaps = leftSwaps + rightSwaps;
+
+      while (i < leftSubArr.length && j < rightSubArr.length) {
+        if (leftSubArr[i] < rightSubArr[j]) {
+          arr.push(leftSubArr[i++]);
+        } else {
+          arr.push(rightSubArr[j++]);
+          // All remaining elements in left subarray form inversions
+          // with the current element from right subarray
+          swaps += leftSubArr.length - i;
+        }
+      }
+
+      return [
+        [...arr, ...leftSubArr.slice(i), ...rightSubArr.slice(j)],
+        swaps,
+      ];
+    }
+
+    function getInversionCount(
+      [arr, swaps]: [number[], number]
+    ): [number[], number] {
+      // Base case: single element has no inversions
+      if (arr.length === 1) {
+        return [arr, swaps];
+      }
+
+      const mid = Math.floor(arr.length / 2);
+      
+      // Recursively count inversions in left and right halves
+      const left = getInversionCount([arr.slice(0, mid), swaps]);
+      const right = getInversionCount([arr.slice(mid), swaps]);
+
+      // Merge and count cross inversions
+      return merge(left, right);
+    }
+
+    // Usage
+    const arr = [2, 4, 1, 3, 5];
+    const [sorted, count] = getInversionCount([arr, 0]);
+    // sorted: [1, 2, 3, 4, 5]
+    // count: 3
+    ```
+  </Accordion>
+
+  <Accordion title="Complexity Analysis">
+    - **Time Complexity**: O(n log n)
+      - Same as merge sort - we're essentially doing a merge sort while counting inversions
+    
+    - **Space Complexity**: O(n)
+      - For the temporary arrays created during merging
+  </Accordion>
+</AccordionGroup>
+
+## When to Use Divide and Conquer
+
+<CardGroup cols={2}>
+  <Card title="Use When" icon="check">
+    - Problem can be broken into similar subproblems
+    - Subproblems are independent
+    - Combining solutions is straightforward
+    - You need optimal time complexity
+    - Problem has natural recursive structure
+  </Card>
+  
+  <Card title="Avoid When" icon="xmark">
+    - Subproblems overlap significantly (use DP instead)
+    - Base cases are too complex
+    - Overhead of recursion is too high
+    - Problem requires iterative solution
+    - Memory constraints are tight
+  </Card>
+</CardGroup>
+
+## Key Characteristics
+
+<Steps>
+  <Step title="Divide">
+    Break the problem into smaller subproblems of the same type
+  </Step>
+  
+  <Step title="Conquer">
+    Solve the subproblems recursively. If subproblems are small enough, solve them directly (base case)
+  </Step>
+  
+  <Step title="Combine">
+    Merge the solutions of the subproblems to create a solution to the original problem
+  </Step>
+</Steps>
+
+## Tips and Best Practices
+
+<Tip>
+**Define Clear Base Cases**: Always identify the simplest case where the problem can be solved directly without further division.
+</Tip>
+
+<Tip>
+**Balance Divisions**: For optimal performance, try to divide the problem into equal or nearly equal parts.
+</Tip>
+
+<Tip>
+**Optimize the Combine Step**: The efficiency of combining solutions often determines overall algorithm performance.
+</Tip>
+
+<Warning>
+Watch out for stack overflow with very large inputs. Consider iterative approaches or tail recursion optimization if recursion depth becomes problematic.
+</Warning>
+
+## Comparison with Other Techniques
+
+| Aspect | Divide and Conquer | Dynamic Programming |
+|--------|-------------------|---------------------|
+| Subproblems | Independent | Overlapping |
+| Approach | Top-down (recursive) | Bottom-up or top-down |
+| Optimization | No memoization needed | Requires memoization |
+| Examples | Merge sort, Binary search | Fibonacci, LCS |
+
+## Related Topics
+
+<CardGroup cols={3}>
+  <Card title="Dynamic Programming" icon="table-cells" href="/algorithms/design-techniques/dynamic-programming">
+    For overlapping subproblems
+  </Card>
+  
+  <Card title="Greedy Algorithms" icon="gauge-high" href="/algorithms/design-techniques/greedy">
+    For optimization problems
+  </Card>
+  
+  <Card title="Backtracking" icon="rotate-left" href="/algorithms/design-techniques/backtracking">
+    For constraint satisfaction
+  </Card>
+</CardGroup>

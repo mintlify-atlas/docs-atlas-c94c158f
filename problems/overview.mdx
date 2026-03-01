@@ -1,0 +1,183 @@
+---
+title: 'Coding Problems Overview'
+description: 'A comprehensive collection of 20+ coding problems covering essential data structures and algorithm design techniques'
+icon: 'puzzle-piece'
+---
+
+## Introduction
+
+This repository contains a curated collection of coding problems organized across data structures and algorithm design techniques. Each problem includes detailed solutions with time and space complexity analysis, making it an excellent resource for interview preparation and algorithm mastery.
+
+<CardGroup cols={2}>
+  <Card title="Data Structure Problems" icon="database" href="/problems/by-data-structure">
+    Problems organized by data structure: arrays, linked lists, stacks, queues, and trees
+  </Card>
+  <Card title="Algorithm Technique Problems" icon="brain" href="/problems/by-technique">
+    Problems organized by design technique: dynamic programming, divide & conquer, greedy, and backtracking
+  </Card>
+</CardGroup>
+
+## Problem Categories
+
+### Data Structures (17 Problems)
+
+<AccordionGroup>
+  <Accordion title="Arrays (7 problems)">
+    Array problems focus on matrix manipulation, element searching, merging, and optimization challenges. Topics include matrix rotation, next greater element, sorted array merging, and maximization problems.
+    
+    **Difficulty Range:** Easy to Medium
+    
+    **Key Concepts:** Two pointers, matrix manipulation, optimization, element pairing
+  </Accordion>
+
+  <Accordion title="Linked Lists (2 problems)">
+    Linked list problems explore list partitioning and arithmetic operations on lists. These problems test understanding of pointer manipulation and list traversal.
+    
+    **Difficulty Range:** Medium
+    
+    **Key Concepts:** Pointer manipulation, list partitioning, arithmetic on linked structures
+  </Accordion>
+
+  <Accordion title="Stacks (2 problems)">
+    Stack problems demonstrate LIFO principles through sorting operations and number base conversion challenges.
+    
+    **Difficulty Range:** Easy to Medium
+    
+    **Key Concepts:** LIFO ordering, auxiliary data structures, base conversion
+  </Accordion>
+
+  <Accordion title="Trees (4 problems)">
+    Tree problems cover tree traversal, serialization, node connection, and dimensional analysis. These are fundamental for understanding hierarchical data structures.
+    
+    **Difficulty Range:** Medium to Hard
+    
+    **Key Concepts:** Tree traversal (DFS/BFS), serialization, level-order operations
+  </Accordion>
+
+  <Accordion title="Queues (Placeholder)">
+    Queue problems explore FIFO operations and are commonly used in BFS algorithms and scheduling problems.
+    
+    **Status:** Coming soon
+  </Accordion>
+
+  <Accordion title="Graphs (Placeholder)">
+    Graph problems include traversal algorithms, shortest path finding, and cycle detection.
+    
+    **Status:** Coming soon
+  </Accordion>
+</AccordionGroup>
+
+### Algorithm Design Techniques (4 Problems)
+
+<AccordionGroup>
+  <Accordion title="Dynamic Programming (1 problem)">
+    DP problems demonstrate how to solve optimization problems by breaking them into overlapping subproblems and storing solutions for reuse.
+    
+    **Difficulty Range:** Hard
+    
+    **Key Concepts:** Memoization, tabulation, optimal substructure
+  </Accordion>
+
+  <Accordion title="Divide and Conquer (2 problems)">
+    These problems show how to divide problems into independent subproblems, solve recursively, and combine solutions.
+    
+    **Difficulty Range:** Medium to Hard
+    
+    **Key Concepts:** Recursive decomposition, merge operations, subarray analysis
+  </Accordion>
+
+  <Accordion title="Greedy Algorithms (1 problem)">
+    Greedy problems demonstrate making locally optimal choices at each step to find a global optimum.
+    
+    **Difficulty Range:** Easy to Medium
+    
+    **Key Concepts:** Local optimization, coin change, activity selection
+  </Accordion>
+
+  <Accordion title="Backtracking (1 problem)">
+    Backtracking problems explore solution spaces by trying different paths and backtracking when a path doesn't lead to a solution.
+    
+    **Difficulty Range:** Medium to Hard
+    
+    **Key Concepts:** State space exploration, constraint satisfaction, pruning
+  </Accordion>
+</AccordionGroup>
+
+## Complexity Analysis
+
+Every problem in this collection includes:
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    Analysis of how the algorithm's runtime grows with input size, typically expressed in Big O notation
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    Analysis of additional memory required by the algorithm, excluding the input itself
+  </Card>
+</CardGroup>
+
+## How to Use This Collection
+
+<Steps>
+  <Step title="Choose Your Focus">
+    Decide whether you want to strengthen your understanding of specific data structures or master algorithm design techniques.
+  </Step>
+  
+  <Step title="Start with Fundamentals">
+    If you're new to a topic, begin with easier problems (arrays, stacks) before moving to complex structures (trees, graphs).
+  </Step>
+  
+  <Step title="Study Multiple Solutions">
+    Many problems include multiple solution approaches. Compare them to understand trade-offs between time and space complexity.
+  </Step>
+  
+  <Step title="Analyze Complexity">
+    Always review the time and space complexity analysis to develop intuition for algorithmic efficiency.
+  </Step>
+  
+  <Step title="Implement from Scratch">
+    Try implementing solutions yourself before looking at the provided code. This builds problem-solving skills.
+  </Step>
+</Steps>
+
+## Problem Difficulty Distribution
+
+<Tabs>
+  <Tab title="By Difficulty">
+    - **Easy:** 5 problems (Greedy, basic arrays, stacks)
+    - **Medium:** 12 problems (Most data structure problems)
+    - **Hard:** 4 problems (DP, advanced tree problems, divide & conquer)
+  </Tab>
+  
+  <Tab title="By Category">
+    - **Data Structures:** 17 problems
+    - **Algorithm Techniques:** 4 problems
+    - **Total:** 21+ problems with multiple solutions
+  </Tab>
+</Tabs>
+
+## Common Patterns
+
+Across these problems, you'll encounter recurring patterns:
+
+- **Two Pointers:** Used in array merging and partitioning
+- **Auxiliary Data Structures:** Stacks and queues as helpers
+- **Recursion:** Core to tree, divide & conquer, and backtracking problems
+- **Hash Maps:** For O(1) lookups in optimization problems
+- **Matrix Manipulation:** Layer-by-layer and in-place algorithms
+- **Traversal Techniques:** DFS, BFS, pre-order, in-order, post-order
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Browse by Data Structure" icon="folder-tree" href="/problems/by-data-structure">
+    Explore problems organized by the underlying data structure
+  </Card>
+  <Card title="Browse by Technique" icon="lightbulb" href="/problems/by-technique">
+    Study problems grouped by algorithm design approach
+  </Card>
+</CardGroup>
+
+<Note>
+  All solutions include working TypeScript implementations with comprehensive test cases. The source code is located in `/workspace/source/` with problem test files named `*.problems.test.ts`.
+</Note>

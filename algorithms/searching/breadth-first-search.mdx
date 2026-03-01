@@ -1,0 +1,441 @@
+---
+title: 'Breadth-first search'
+description: 'A graph traversal algorithm that explores nodes level by level'
+icon: 'diagram-project'
+keywords: ['breadth-first search', 'BFS', 'graph traversal', 'tree traversal', 'level-order']
+---
+
+Breadth-first search (BFS) is a graph and tree traversal algorithm that explores all nodes at the current depth level before moving to nodes at the next depth level.
+
+## Algorithm overview
+
+BFS starts at a root node and explores all neighbor nodes at the present depth before moving to nodes at the next depth level. It uses a queue data structure to keep track of nodes to visit.
+
+### Key characteristics
+
+- Explores nodes level by level
+- Uses a queue (FIFO) data structure
+- Guarantees shortest path in unweighted graphs
+- Complete algorithm - finds solution if it exists
+- Optimal for finding shortest distance
+
+<Info>
+  The implementation for BFS is not currently available in the source repository. This documentation describes the algorithm conceptually and provides example implementations.
+</Info>
+
+## How it works
+
+The BFS algorithm follows these steps:
+
+<Steps>
+  <Step title="Initialize">
+    - Create a queue and add the starting node
+    - Mark the starting node as visited
+    - Create a set/array to track visited nodes
+  </Step>
+  
+  <Step title="Process nodes">
+    While the queue is not empty:
+    - Dequeue the front node
+    - Process the current node
+    - Add all unvisited neighbors to the queue
+    - Mark neighbors as visited
+  </Step>
+  
+  <Step title="Complete">
+    Continue until queue is empty or target is found
+  </Step>
+</Steps>
+
+## Implementation examples
+
+### Basic BFS for graphs
+
+```typescript
+interface GraphNode<T> {
+  value: T;
+  neighbors: GraphNode<T>[];
+}
+
+function breadthFirstSearch<T>(
+  start: GraphNode<T>,
+  target: T
+): GraphNode<T> | null {
+  const queue: GraphNode<T>[] = [start];
+  const visited = new Set<GraphNode<T>>();
+  visited.add(start);
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+
+    // Check if we found the target
+    if (current.value === target) {
+      return current;
+    }
+
+    // Add unvisited neighbors to queue
+    for (const neighbor of current.neighbors) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push(neighbor);
+      }
+    }
+  }
+
+  return null; // Target not found
+}
+```
+
+### BFS for binary trees
+
+```typescript
+interface TreeNode<T> {
+  value: T;
+  left: TreeNode<T> | null;
+  right: TreeNode<T> | null;
+}
+
+function bfsTree<T>(root: TreeNode<T> | null): T[] {
+  if (!root) return [];
+
+  const result: T[] = [];
+  const queue: TreeNode<T>[] = [root];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    result.push(current.value);
+
+    if (current.left) queue.push(current.left);
+    if (current.right) queue.push(current.right);
+  }
+
+  return result;
+}
+```
+
+### BFS with path tracking
+
+```typescript
+function bfsWithPath<T>(
+  start: GraphNode<T>,
+  target: T
+): GraphNode<T>[] | null {
+  const queue: { node: GraphNode<T>; path: GraphNode<T>[] }[] = [
+    { node: start, path: [start] }
+  ];
+  const visited = new Set<GraphNode<T>>();
+  visited.add(start);
+
+  while (queue.length > 0) {
+    const { node, path } = queue.shift()!;
+
+    if (node.value === target) {
+      return path;
+    }
+
+    for (const neighbor of node.neighbors) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push({
+          node: neighbor,
+          path: [...path, neighbor]
+        });
+      }
+    }
+  }
+
+  return null;
+}
+```
+
+### Level-order traversal with levels
+
+```typescript
+function bfsWithLevels<T>(root: TreeNode<T> | null): T[][] {
+  if (!root) return [];
+
+  const result: T[][] = [];
+  const queue: TreeNode<T>[] = [root];
+
+  while (queue.length > 0) {
+    const levelSize = queue.length;
+    const currentLevel: T[] = [];
+
+    for (let i = 0; i < levelSize; i++) {
+      const node = queue.shift()!;
+      currentLevel.push(node.value);
+
+      if (node.left) queue.push(node.left);
+      if (node.right) queue.push(node.right);
+    }
+
+    result.push(currentLevel);
+  }
+
+  return result;
+}
+```
+
+## Complexity analysis
+
+<AccordionGroup>
+  <Accordion title="Time complexity">
+    **O(V + E)** where V is vertices and E is edges
+    
+    - Each vertex is visited exactly once
+    - Each edge is explored exactly once (twice for undirected graphs)
+    - For trees: O(n) where n is the number of nodes
+    
+    The algorithm must visit every reachable node to ensure completeness.
+  </Accordion>
+  
+  <Accordion title="Space complexity">
+    **O(V)** where V is the number of vertices
+    
+    - Queue can contain up to one full level of nodes
+    - Visited set stores all visited nodes
+    - In the worst case (complete binary tree), the last level can contain V/2 nodes
+  </Accordion>
+</AccordionGroup>
+
+## Visualization
+
+Consider this graph:
+
+```
+     A
+   / | \
+  B  C  D
+  |  |  |
+  E  F  G
+```
+
+BFS starting from A:
+
+<Steps>
+  <Step title="Level 0">
+    Visit: **A**
+    
+    Queue: []
+    
+    Add neighbors: B, C, D
+  </Step>
+  
+  <Step title="Level 1">
+    Visit: **B**, **C**, **D**
+    
+    Queue: []
+    
+    Add neighbors: E, F, G
+  </Step>
+  
+  <Step title="Level 2">
+    Visit: **E**, **F**, **G**
+    
+    Queue: []
+    
+    Traversal complete
+  </Step>
+</Steps>
+
+Order: A → B → C → D → E → F → G
+
+## Usage examples
+
+### Finding shortest path
+
+```typescript
+const graph = {
+  A: ['B', 'C'],
+  B: ['A', 'D', 'E'],
+  C: ['A', 'F'],
+  D: ['B'],
+  E: ['B', 'F'],
+  F: ['C', 'E']
+};
+
+function shortestPath(
+  graph: Record<string, string[]>,
+  start: string,
+  end: string
+): string[] | null {
+  const queue: { node: string; path: string[] }[] = [
+    { node: start, path: [start] }
+  ];
+  const visited = new Set<string>([start]);
+
+  while (queue.length > 0) {
+    const { node, path } = queue.shift()!;
+
+    if (node === end) {
+      return path;
+    }
+
+    for (const neighbor of graph[node] || []) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push({
+          node: neighbor,
+          path: [...path, neighbor]
+        });
+      }
+    }
+  }
+
+  return null;
+}
+
+const path = shortestPath(graph, 'A', 'F');
+console.log(path); // Output: ['A', 'C', 'F']
+```
+
+### Connected components
+
+```typescript
+function countConnectedComponents(
+  graph: Record<string, string[]>
+): number {
+  const visited = new Set<string>();
+  let components = 0;
+
+  function bfs(start: string) {
+    const queue = [start];
+    visited.add(start);
+
+    while (queue.length > 0) {
+      const node = queue.shift()!;
+
+      for (const neighbor of graph[node] || []) {
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+  }
+
+  for (const node in graph) {
+    if (!visited.has(node)) {
+      bfs(node);
+      components++;
+    }
+  }
+
+  return components;
+}
+```
+
+## When to use BFS
+
+<Columns cols={2}>
+  <Card title="Good for" icon="check">
+    - Finding shortest path in unweighted graphs
+    - Level-order tree traversal
+    - Finding all nodes within k distance
+    - Testing graph connectivity
+    - Finding minimum spanning tree
+    - Solving maze problems
+  </Card>
+  
+  <Card title="Avoid when" icon="xmark">
+    - Graph has many branches (memory intensive)
+    - Only need to search deep paths
+    - Weighted graphs (use Dijkstra instead)
+    - Solution is likely far from start
+  </Card>
+</Columns>
+
+## BFS vs DFS comparison
+
+| Aspect | BFS | DFS |
+| --------------- | ------------------------ | --------------------------- |
+| Data structure | Queue (FIFO) | Stack (LIFO) or recursion |
+| Memory usage | Higher (stores level) | Lower (path depth) |
+| Shortest path | Yes (unweighted) | No |
+| Completeness | Complete | Complete (with cycle check) |
+| Optimality | Optimal (unweighted) | Not optimal |
+| Use case | Shortest path | Topological sort |
+
+## Common applications
+
+### Social networks
+
+Find friends within n degrees of separation:
+
+```typescript
+function friendsWithinDegrees(
+  person: string,
+  degrees: number,
+  network: Record<string, string[]>
+): Set<string> {
+  const friends = new Set<string>();
+  const queue: { person: string; level: number }[] = [
+    { person, level: 0 }
+  ];
+  const visited = new Set<string>([person]);
+
+  while (queue.length > 0) {
+    const { person: current, level } = queue.shift()!;
+
+    if (level > degrees) break;
+    if (level > 0) friends.add(current);
+
+    for (const friend of network[current] || []) {
+      if (!visited.has(friend)) {
+        visited.add(friend);
+        queue.push({ person: friend, level: level + 1 });
+      }
+    }
+  }
+
+  return friends;
+}
+```
+
+### Web crawler
+
+```typescript
+function webCrawler(
+  startUrl: string,
+  maxDepth: number
+): string[] {
+  const visited = new Set<string>();
+  const queue: { url: string; depth: number }[] = [
+    { url: startUrl, depth: 0 }
+  ];
+
+  while (queue.length > 0) {
+    const { url, depth } = queue.shift()!;
+
+    if (visited.has(url) || depth > maxDepth) {
+      continue;
+    }
+
+    visited.add(url);
+    // Crawl page and extract links
+    const links = extractLinks(url);
+
+    for (const link of links) {
+      queue.push({ url: link, depth: depth + 1 });
+    }
+  }
+
+  return Array.from(visited);
+}
+
+function extractLinks(url: string): string[] {
+  // Implementation to extract links from page
+  return [];
+}
+```
+
+## Related algorithms
+
+<CardGroup cols={2}>
+  <Card title="Depth-first search" icon="sitemap" href="/algorithms/searching/depth-first-search">
+    Explores as far as possible along each branch
+  </Card>
+  <Card title="Binary search" icon="code-branch" href="/algorithms/searching/binary-search">
+    Efficient search in sorted arrays
+  </Card>
+</CardGroup>

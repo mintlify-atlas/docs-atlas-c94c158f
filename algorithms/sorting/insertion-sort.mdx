@@ -1,0 +1,160 @@
+---
+title: 'Insertion Sort'
+description: 'Efficient algorithm for sorting small datasets that builds the final sorted array one item at a time'
+---
+
+## Overview
+
+Insertion Sort is a simple sorting algorithm that builds the final sorted array one item at a time. It is much less efficient on large lists than more advanced algorithms such as quicksort, heapsort, or merge sort. However, it has several advantages including simplicity, efficiency on small data sets, and being adaptive to already sorted data.
+
+## Implementation
+
+```typescript
+export function insertionSort(list: number[]) {
+  for (let i = 1; i < list.length; i++) {
+    let j = i;
+    let aux = list[i];
+
+    while (list[j - 1] > aux && j > 0) {
+      list[j] = list[j - 1];
+      j--;
+    }
+
+    list[j] = aux;
+  }
+
+  return list;
+}
+```
+
+## How It Works
+
+1. **Start from Second Element**: Begin at index 1 (second element), treating the first element as already sorted
+2. **Save Current Element**: Store the current element in a temporary variable
+3. **Shift Larger Elements**: Move elements greater than the current element one position to the right
+4. **Insert Element**: Place the current element in its correct position
+5. **Repeat**: Continue this process for all remaining elements
+
+<Note>
+Insertion Sort works similarly to how you might sort playing cards in your hands - you pick up cards one at a time and insert each into its proper position.
+</Note>
+
+## Complexity Analysis
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    - **Best Case**: O(n) - when array is already sorted
+    - **Average Case**: O(n²)
+    - **Worst Case**: O(n²) - when array is reverse sorted
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    - **Space**: O(1) - sorts in place
+    - **Auxiliary**: O(1) - only uses a few variables
+  </Card>
+</CardGroup>
+
+## Usage Example
+
+```typescript
+import { insertionSort } from './insertion-sort';
+
+// Example 1: Sort a simple array
+const numbers = [12, 11, 13, 5, 6];
+const sorted = insertionSort(numbers);
+console.log(sorted); // [5, 6, 11, 12, 13]
+
+// Example 2: Nearly sorted array (best performance)
+const nearlySorted = [1, 2, 3, 5, 4, 6, 7];
+insertionSort(nearlySorted); // [1, 2, 3, 4, 5, 6, 7]
+
+// Example 3: Small dataset
+const small = [3, 1, 2];
+insertionSort(small); // [1, 2, 3]
+
+// Example 4: Single element
+const single = [42];
+insertionSort(single); // [42]
+```
+
+## Visual Example
+
+Let's trace through sorting `[12, 11, 13, 5, 6]`:
+
+```
+Initial: [12, 11, 13, 5, 6]
+
+Pass 1 (i=1, aux=11):
+  Shift 12 right, insert 11 at position 0
+  Result: [11, 12, 13, 5, 6]
+
+Pass 2 (i=2, aux=13):
+  13 is already in correct position
+  Result: [11, 12, 13, 5, 6]
+
+Pass 3 (i=3, aux=5):
+  Shift 13, 12, 11 right, insert 5 at position 0
+  Result: [5, 11, 12, 13, 6]
+
+Pass 4 (i=4, aux=6):
+  Shift 13, 12, 11 right, insert 6 at position 1
+  Result: [5, 6, 11, 12, 13]
+```
+
+## Characteristics
+
+<AccordionGroup>
+  <Accordion title="Stability">
+    Insertion Sort is **stable** - equal elements maintain their relative order.
+  </Accordion>
+  
+  <Accordion title="In-Place">
+    Yes, Insertion Sort is **in-place**. It only requires O(1) additional memory.
+  </Accordion>
+  
+  <Accordion title="Adaptive">
+    Yes, Insertion Sort is **adaptive**. It runs in O(n) time when the array is already sorted or nearly sorted.
+  </Accordion>
+  
+  <Accordion title="Online">
+    Yes, Insertion Sort is **online**. It can sort a list as it receives new elements.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use
+
+<Check>
+Insertion Sort is often the algorithm of choice for small datasets or nearly sorted data.
+</Check>
+
+**Good for:**
+- Small datasets (typically n < 20-30)
+- Nearly sorted data (performs in near-linear time)
+- Online sorting (elements arrive one at a time)
+- As the final step in more complex sorting algorithms (e.g., Timsort, Introsort)
+- When simplicity and low overhead are important
+
+**Avoid when:**
+- Working with large random datasets
+- Data is in reverse order
+- O(n log n) performance is required
+
+## Performance Insights
+
+<Tip>
+**Why Insertion Sort for Small Arrays?**
+
+Many advanced sorting algorithms (like Quicksort and Mergesort) switch to Insertion Sort for small subarrays because:
+- Lower overhead than recursive algorithms
+- Better cache performance
+- Simple implementation means fewer instructions
+- Adaptive behavior helps with partially sorted data
+</Tip>
+
+## Comparison with Other Sorts
+
+| Algorithm | Best Case | Average Case | Worst Case | Space | Stable | Adaptive | Online |
+|-----------|-----------|--------------|------------|-------|--------|----------|--------|
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | Yes | Yes |
+| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | Yes | No |
+| Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | No | No | No |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes | No | No |

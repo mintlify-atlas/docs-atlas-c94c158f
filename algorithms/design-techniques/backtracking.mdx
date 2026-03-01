@@ -1,0 +1,753 @@
+---
+title: 'Backtracking'
+description: 'Master the backtracking technique for solving constraint satisfaction and combinatorial problems'
+---
+
+## Overview
+
+Backtracking is an algorithmic technique for solving problems by **incrementally building candidates** and **abandoning a candidate** ("backtracking") as soon as it determines that the candidate cannot lead to a valid solution.
+
+<Note>
+Think of backtracking as a smart exhaustive search: try a solution, if it doesn't work, undo it and try another approach.
+</Note>
+
+## Core Concept
+
+Backtracking works by:
+1. Choosing a possible solution or move
+2. Trying to solve the problem using that choice
+3. If it doesn't work, **backtrack** and try a different choice
+4. Continue until the problem is solved or all options are exhausted
+
+```typescript
+function backtrack(solution, choices) {
+  if (isSolution(solution)) {
+    return solution;
+  }
+  
+  for (const choice of choices) {
+    // Make a choice
+    solution.add(choice);
+    
+    if (isValid(solution)) {
+      // Recursively explore
+      const result = backtrack(solution, nextChoices);
+      if (result) return result;
+    }
+    
+    // Backtrack: undo the choice
+    solution.remove(choice);
+  }
+  
+  return null;
+}
+```
+
+## Problem: Rat in a Maze
+
+<AccordionGroup>
+  <Accordion title="Problem Description">
+    A maze is given as an `n × n` binary matrix of blocks where:
+    - Source: Upper left `maze[0][0]`
+    - Destination: Lower right `maze[n-1][n-1]`
+    - `0` means blocked (dead end)
+    - `1` means open (can be part of path)
+    
+    A rat starts from the source and must reach the destination. The rat can only move **forward (right)** or **down**.
+    
+    **Example:**
+    ```
+    Input Maze:              Solution Path:
+    1  0  0  0               1  0  0  0
+    1  1  1  1               1  1  1  0
+    0  0  1  0               0  0  1  0
+    0  1  1  1               0  0  1  1
+    ```
+  </Accordion>
+
+  <Accordion title="Backtracking Strategy">
+    The backtracking approach:
+    
+    1. Start at `[0, 0]`
+    2. Mark current position as part of solution path
+    3. Try moving right, then down
+    4. If either move leads to destination, return true
+    5. If both moves fail, **backtrack**: unmark current position
+    6. Return false
+    
+    <Info>
+    The key insight: if we hit a dead end, we undo our last move and try a different direction. This is the "backtracking" step.
+    </Info>
+  </Accordion>
+
+  <Accordion title="Implementation">
+    ```typescript
+    function solveMaze(
+      maze: number[][],
+      solution: number[][],
+      i: number,
+      j: number
+    ): boolean {
+      const n = maze.length;
+      
+      // Check if position is out of bounds
+      if (i > n - 1 || j > n - 1) {
+        return false;
+      }
+      
+      // Check if we reached the destination
+      if (i === n - 1 && j === n - 1) {
+        solution[i][j] = 1;
+        return true;
+      }
+      
+      // Check if current cell is valid (not blocked)
+      if (maze[i][j] !== 0) {
+        // Mark current cell as part of solution path
+        solution[i][j] = 1;
+        
+        // Try moving right
+        if (solveMaze(maze, solution, i, j + 1)) {
+          return true;
+        }
+        
+        // Try moving down
+        if (solveMaze(maze, solution, i + 1, j)) {
+          return true;
+        }
+        
+        // Backtrack: unmark current cell
+        // This is executed when both right and down moves fail
+        solution[i][j] = 0;
+      }
+      
+      return false;
+    }
+    
+    // Usage
+    const maze = [
+      [1, 0, 0, 0],
+      [1, 1, 1, 1],
+      [0, 0, 1, 0],
+      [0, 1, 1, 1],
+    ];
+    
+    const n = maze.length;
+    const solution: number[][] = [];
+    
+    // Initialize solution matrix with zeros
+    for (let i = 0; i < n; i++) {
+      solution[i] = Array.from({ length: n }, () => 0);
+    }
+    
+    const found = solveMaze(maze, solution, 0, 0);
+    
+    if (found) {
+      console.log('Solution found:');
+      console.log(solution);
+      // Output:
+      // [[1, 0, 0, 0],
+      //  [1, 1, 1, 0],
+      //  [0, 0, 1, 0],
+      //  [0, 0, 1, 1]]
+    } else {
+      console.log('No solution exists');
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Step-by-Step Walkthrough">
+    Let's trace the algorithm for the 4×4 maze:
+    
+    ```
+    Step 1: Start at [0,0], mark it
+    [1, 0, 0, 0]
+    [0, 0, 0, 0]
+    [0, 0, 0, 0]
+    [0, 0, 0, 0]
+    
+    Step 2: Try right [0,1] - blocked, try down [1,0]
+    [1, 0, 0, 0]
+    [1, 0, 0, 0]
+    [0, 0, 0, 0]
+    [0, 0, 0, 0]
+    
+    Step 3: From [1,0], try right [1,1]
+    [1, 0, 0, 0]
+    [1, 1, 0, 0]
+    [0, 0, 0, 0]
+    [0, 0, 0, 0]
+    
+    Step 4: From [1,1], try right [1,2]
+    [1, 0, 0, 0]
+    [1, 1, 1, 0]
+    [0, 0, 0, 0]
+    [0, 0, 0, 0]
+    
+    Step 5: From [1,2], try right [1,3] - then down [2,3] is blocked
+           Backtrack from [1,3], try down from [1,2]
+    [1, 0, 0, 0]
+    [1, 1, 1, 0]
+    [0, 0, 1, 0]
+    [0, 0, 0, 0]
+    
+    Step 6: Continue down to [3,2], then right to [3,3] - Success!
+    [1, 0, 0, 0]
+    [1, 1, 1, 0]
+    [0, 0, 1, 0]
+    [0, 0, 1, 1]
+    ```
+  </Accordion>
+
+  <Accordion title="Complexity Analysis">
+    - **Time Complexity**: O(2^(n²))
+      - In worst case, we explore all possible paths
+      - At each cell, we have up to 2 choices (right or down)
+      - With pruning, actual complexity is often much better
+    
+    - **Space Complexity**: O(n²)
+      - For the solution matrix
+      - Plus O(n²) for recursion stack in worst case
+  </Accordion>
+
+  <Accordion title="Extended Version: All Four Directions">
+    For a more general maze where the rat can move in all four directions:
+    
+    ```typescript
+    function solveMazeAllDirections(
+      maze: number[][],
+      solution: number[][],
+      i: number,
+      j: number,
+      visited: boolean[][]
+    ): boolean {
+      const n = maze.length;
+      
+      // Boundary and validity checks
+      if (i < 0 || i >= n || j < 0 || j >= n ||
+          maze[i][j] === 0 || visited[i][j]) {
+        return false;
+      }
+      
+      // Reached destination
+      if (i === n - 1 && j === n - 1) {
+        solution[i][j] = 1;
+        return true;
+      }
+      
+      // Mark as visited
+      visited[i][j] = true;
+      solution[i][j] = 1;
+      
+      // Try all four directions: down, right, up, left
+      const directions = [[1,0], [0,1], [-1,0], [0,-1]];
+      
+      for (const [di, dj] of directions) {
+        if (solveMazeAllDirections(
+          maze, solution, i + di, j + dj, visited
+        )) {
+          return true;
+        }
+      }
+      
+      // Backtrack
+      solution[i][j] = 0;
+      visited[i][j] = false;
+      
+      return false;
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## When to Use Backtracking
+
+<CardGroup cols={2}>
+  <Card title="Use When" icon="check">
+    - Need to find all solutions
+    - Constraint satisfaction problems
+    - Combinatorial problems
+    - No greedy/DP solution exists
+    - Problem involves choices/decisions
+    - Can detect invalid paths early
+  </Card>
+  
+  <Card title="Avoid When" icon="xmark">
+    - Simple iterative solution exists
+    - Greedy approach works
+    - DP is more efficient
+    - Search space is too large
+    - Need optimal solution quickly
+  </Card>
+</CardGroup>
+
+## Classic Backtracking Problems
+
+<AccordionGroup>
+  <Accordion title="N-Queens">
+    Place N queens on an N×N chessboard so no two queens attack each other.
+    
+    ```typescript
+    function solveNQueens(n: number): number[][] {
+      const solutions: number[][] = [];
+      const board = Array(n).fill(-1);
+      
+      function isSafe(row: number, col: number): boolean {
+        for (let i = 0; i < row; i++) {
+          // Check column and diagonals
+          if (board[i] === col ||
+              board[i] - i === col - row ||
+              board[i] + i === col + row) {
+            return false;
+          }
+        }
+        return true;
+      }
+      
+      function backtrack(row: number) {
+        if (row === n) {
+          solutions.push([...board]);
+          return;
+        }
+        
+        for (let col = 0; col < n; col++) {
+          if (isSafe(row, col)) {
+            board[row] = col;           // Place queen
+            backtrack(row + 1);         // Recurse
+            board[row] = -1;            // Backtrack
+          }
+        }
+      }
+      
+      backtrack(0);
+      return solutions;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Sudoku Solver">
+    Fill a 9×9 Sudoku grid following the rules.
+    
+    ```typescript
+    function solveSudoku(board: number[][]): boolean {
+      function isValid(
+        board: number[][],
+        row: number,
+        col: number,
+        num: number
+      ): boolean {
+        // Check row
+        for (let x = 0; x < 9; x++) {
+          if (board[row][x] === num) return false;
+        }
+        
+        // Check column
+        for (let x = 0; x < 9; x++) {
+          if (board[x][col] === num) return false;
+        }
+        
+        // Check 3×3 box
+        const startRow = row - (row % 3);
+        const startCol = col - (col % 3);
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+            if (board[i + startRow][j + startCol] === num) {
+              return false;
+            }
+          }
+        }
+        
+        return true;
+      }
+      
+      function solve(): boolean {
+        for (let row = 0; row < 9; row++) {
+          for (let col = 0; col < 9; col++) {
+            if (board[row][col] === 0) {
+              for (let num = 1; num <= 9; num++) {
+                if (isValid(board, row, col, num)) {
+                  board[row][col] = num;     // Try number
+                  
+                  if (solve()) return true;  // Recurse
+                  
+                  board[row][col] = 0;       // Backtrack
+                }
+              }
+              return false;  // No valid number found
+            }
+          }
+        }
+        return true;  // Solved
+      }
+      
+      return solve();
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Subset Sum">
+    Find if there's a subset that sums to a target value.
+    
+    ```typescript
+    function subsetSum(
+      nums: number[],
+      target: number,
+      index: number = 0,
+      current: number[] = []
+    ): number[] | null {
+      // Found a solution
+      if (target === 0) {
+        return current;
+      }
+      
+      // Exceeded target or no more numbers
+      if (target < 0 || index >= nums.length) {
+        return null;
+      }
+      
+      // Include current number
+      current.push(nums[index]);
+      let result = subsetSum(
+        nums,
+        target - nums[index],
+        index + 1,
+        current
+      );
+      
+      if (result) return result;
+      
+      // Backtrack: exclude current number
+      current.pop();
+      result = subsetSum(nums, target, index + 1, current);
+      
+      return result;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Generate Permutations">
+    Generate all permutations of an array.
+    
+    ```typescript
+    function permute(nums: number[]): number[][] {
+      const results: number[][] = [];
+      
+      function backtrack(current: number[], remaining: number[]) {
+        // Base case: no more numbers to add
+        if (remaining.length === 0) {
+          results.push([...current]);
+          return;
+        }
+        
+        // Try each remaining number
+        for (let i = 0; i < remaining.length; i++) {
+          // Choose
+          current.push(remaining[i]);
+          
+          // Explore with remaining numbers (excluding chosen)
+          backtrack(
+            current,
+            [...remaining.slice(0, i), ...remaining.slice(i + 1)]
+          );
+          
+          // Unchoose (backtrack)
+          current.pop();
+        }
+      }
+      
+      backtrack([], nums);
+      return results;
+    }
+    
+    // Usage
+    console.log(permute([1, 2, 3]));
+    // Output: [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]
+    ```
+  </Accordion>
+
+  <Accordion title="Word Search">
+    Find if a word exists in a 2D board.
+    
+    ```typescript
+    function wordSearch(
+      board: string[][],
+      word: string
+    ): boolean {
+      const m = board.length;
+      const n = board[0].length;
+      
+      function backtrack(
+        i: number,
+        j: number,
+        index: number
+      ): boolean {
+        // Found the word
+        if (index === word.length) return true;
+        
+        // Out of bounds or wrong character
+        if (i < 0 || i >= m || j < 0 || j >= n ||
+            board[i][j] !== word[index]) {
+          return false;
+        }
+        
+        // Mark cell as visited
+        const temp = board[i][j];
+        board[i][j] = '#';
+        
+        // Try all four directions
+        const found = 
+          backtrack(i + 1, j, index + 1) ||
+          backtrack(i - 1, j, index + 1) ||
+          backtrack(i, j + 1, index + 1) ||
+          backtrack(i, j - 1, index + 1);
+        
+        // Backtrack: restore cell
+        board[i][j] = temp;
+        
+        return found;
+      }
+      
+      // Try starting from each cell
+      for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+          if (backtrack(i, j, 0)) return true;
+        }
+      }
+      
+      return false;
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Backtracking Template
+
+<CodeGroup>
+```typescript Basic Template
+function backtrack(
+  solution: any,
+  choices: any[]
+): any {
+  // Base case: found a solution
+  if (isComplete(solution)) {
+    return solution;
+  }
+  
+  // Try each choice
+  for (const choice of choices) {
+    // Make choice
+    solution.add(choice);
+    
+    // Check if choice is valid
+    if (isValid(solution)) {
+      // Recurse with this choice
+      const result = backtrack(solution, nextChoices);
+      if (result) return result;
+    }
+    
+    // Backtrack: undo choice
+    solution.remove(choice);
+  }
+  
+  return null;
+}
+```
+
+```typescript Find All Solutions
+function backtrackAll(
+  solution: any,
+  choices: any[],
+  results: any[]
+): void {
+  // Base case: found a solution
+  if (isComplete(solution)) {
+    results.push(copy(solution));
+    return;
+  }
+  
+  // Try each choice
+  for (const choice of choices) {
+    // Make choice
+    solution.add(choice);
+    
+    // Check if valid
+    if (isValid(solution)) {
+      // Recurse
+      backtrackAll(solution, nextChoices, results);
+    }
+    
+    // Backtrack
+    solution.remove(choice);
+  }
+}
+```
+
+```typescript With Pruning
+function backtrackPruned(
+  solution: any,
+  choices: any[]
+): any {
+  // Base case
+  if (isComplete(solution)) {
+    return solution;
+  }
+  
+  // Pruning: stop early if impossible
+  if (cannotSucceed(solution)) {
+    return null;
+  }
+  
+  for (const choice of choices) {
+    solution.add(choice);
+    
+    if (isValid(solution) && isPromising(solution)) {
+      const result = backtrackPruned(solution, nextChoices);
+      if (result) return result;
+    }
+    
+    solution.remove(choice);
+  }
+  
+  return null;
+}
+```
+</CodeGroup>
+
+## Optimization Techniques
+
+<Steps>
+  <Step title="Pruning">
+    Stop exploring a path as soon as you know it can't lead to a solution
+    
+    ```typescript
+    if (currentSum > target) return; // Prune this branch
+    ```
+  </Step>
+  
+  <Step title="Ordering">
+    Try more promising choices first to find solutions faster
+    
+    ```typescript
+    choices.sort((a, b) => heuristic(b) - heuristic(a));
+    ```
+  </Step>
+  
+  <Step title="Constraint Propagation">
+    After making a choice, eliminate options that become invalid
+  </Step>
+  
+  <Step title="Memoization">
+    Cache results of subproblems (converts to dynamic programming)
+  </Step>
+</Steps>
+
+## Tips and Best Practices
+
+<Tip>
+**Clear Base Cases**: Define exactly when you've found a solution or should stop searching.
+</Tip>
+
+<Tip>
+**Early Termination**: Add constraints to prune invalid paths as early as possible.
+</Tip>
+
+<Tip>
+**Track State Properly**: Make sure you correctly undo all changes when backtracking.
+</Tip>
+
+<Tip>
+**Avoid Redundant Work**: Keep track of visited states to avoid exploring the same path twice.
+</Tip>
+
+<Warning>
+Backtracking can have exponential time complexity. Use pruning techniques to keep the search space manageable.
+</Warning>
+
+## Common Pitfalls
+
+<AccordionGroup>
+  <Accordion title="Forgetting to Backtrack">
+    ```typescript
+    // Wrong: forgot to backtrack
+    function wrong(nums, current) {
+      current.push(nums[0]);
+      wrong(nums.slice(1), current);
+      // Missing: current.pop();
+    }
+    
+    // Correct: always backtrack
+    function correct(nums, current) {
+      current.push(nums[0]);
+      correct(nums.slice(1), current);
+      current.pop(); // Backtrack
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Modifying Shared State">
+    ```typescript
+    // Wrong: modifying array reference
+    function wrong() {
+      const current = [];
+      backtrack(current);
+      results.push(current); // All results will be the same!
+    }
+    
+    // Correct: create a copy
+    function correct() {
+      const current = [];
+      backtrack(current);
+      results.push([...current]); // Copy the array
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Not Checking Validity Early">
+    ```typescript
+    // Inefficient: check validity after exploring
+    function slow(solution) {
+      if (isComplete(solution)) {
+        return isValid(solution) ? solution : null;
+      }
+      // ...
+    }
+    
+    // Better: check validity before exploring
+    function fast(solution) {
+      if (!isValid(solution)) return null;
+      if (isComplete(solution)) return solution;
+      // ...
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Complexity Considerations
+
+| Problem Type | Time Complexity | Space Complexity |
+|--------------|----------------|------------------|
+| N-Queens | O(N!) | O(N) |
+| Sudoku | O(9^(n²)) | O(n²) |
+| Permutations | O(N × N!) | O(N) |
+| Subsets | O(N × 2^N) | O(N) |
+| Combinations | O(N × C(N,K)) | O(K) |
+
+<Note>
+With good pruning, practical performance is often much better than worst-case complexity suggests.
+</Note>
+
+## Related Topics
+
+<CardGroup cols={3}>
+  <Card title="Dynamic Programming" icon="table-cells" href="/algorithms/design-techniques/dynamic-programming">
+    For overlapping subproblems
+  </Card>
+  
+  <Card title="Divide and Conquer" icon="scissors" href="/algorithms/design-techniques/divide-and-conquer">
+    For independent subproblems
+  </Card>
+  
+  <Card title="Greedy Algorithms" icon="gauge-high" href="/algorithms/design-techniques/greedy">
+    When local choices suffice
+  </Card>
+</CardGroup>

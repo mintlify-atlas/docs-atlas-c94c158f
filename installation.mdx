@@ -1,0 +1,176 @@
+---
+title: Installation
+description: Set up the Data Structures and Algorithms library on your local machine
+---
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+
+- **Node.js** (version 14 or higher)
+- **npm** (comes with Node.js)
+- **Git** (for cloning the repository)
+
+## Clone the Repository
+
+<Steps>
+  <Step title="Fork the repository">
+    Visit the [GitHub repository](https://github.com/dfernandeza/data-structures-and-algorithms) and click the **Fork** button in the top-right corner to create your own copy.
+  </Step>
+
+  <Step title="Clone your fork">
+    Clone the repository to your local machine:
+
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/data-structures-and-algorithms.git
+    ```
+
+    Replace `YOUR_USERNAME` with your GitHub username.
+  </Step>
+
+  <Step title="Navigate to the directory">
+    Change into the project directory:
+
+    ```bash
+    cd data-structures-and-algorithms
+    ```
+  </Step>
+</Steps>
+
+## Install Dependencies
+
+Install the required npm packages:
+
+```bash
+npm install
+```
+
+This will install all the development dependencies defined in `package.json`, including:
+
+- **TypeScript** - For type-safe code compilation
+- **Jest** - Testing framework
+- **@swc/jest** - Fast TypeScript/JavaScript transpiler
+- **jest-extended** - Additional Jest matchers
+
+## Verify Installation
+
+To verify that everything is set up correctly, compile the TypeScript code and run the test suite:
+
+```bash
+npm test
+```
+
+You should see output indicating that TypeScript compilation succeeded and all tests are passing:
+
+```
+✓ Compilation successful
+✓ Test Suites: XX passed, XX total
+✓ Tests:       XXX passed, XXX total
+```
+
+<Note>
+  The first test run may take a few moments as TypeScript compiles all the source files.
+</Note>
+
+## Project Structure
+
+Once installed, your project directory will have the following structure:
+
+```
+data-structures-and-algorithms/
+├── algorithms/
+│   ├── sorting/              # Sorting algorithms
+│   ├── searching/            # Searching algorithms
+│   ├── shortest-path/        # Graph algorithms
+│   └── design-techniques/    # Algorithm design patterns
+├── data-structures/
+│   ├── array/
+│   ├── lists/                # Linked lists
+│   ├── stack/
+│   ├── queue/
+│   ├── trees/                # Tree structures
+│   └── graph/
+├── node_modules/             # Dependencies
+├── jest.config.js            # Jest configuration
+├── package.json              # Project metadata
+├── tsconfig.json             # TypeScript configuration
+└── README.md                 # Project documentation
+```
+
+## TypeScript Configuration
+
+The project uses TypeScript with strict type checking enabled. You can find the TypeScript configuration in `tsconfig.json`.
+
+To compile TypeScript files manually:
+
+```bash
+npx tsc
+```
+
+This will compile all `.ts` files according to the configuration and output JavaScript files.
+
+## Development Workflow
+
+Now that you have the project set up, you can:
+
+1. **Explore the code** - Browse through the `algorithms/` and `data-structures/` directories
+2. **Run tests** - Execute `npm test` to run all tests or target specific tests (see [Running Tests](/running-tests))
+3. **Make changes** - Modify existing implementations or add new ones
+4. **Verify changes** - Run tests to ensure your changes work correctly
+
+<Card
+  title="Next: Running Tests"
+  icon="flask"
+  href="/running-tests"
+>
+  Learn how to run tests and target specific data structures or algorithms
+</Card>
+
+## Troubleshooting
+
+### TypeScript Compilation Errors
+
+If you encounter TypeScript compilation errors, ensure you're using a compatible version:
+
+```bash
+npx tsc --version
+```
+
+The project requires TypeScript 5.3.3 or higher.
+
+### Test Failures
+
+If tests fail unexpectedly:
+
+1. Ensure all dependencies are installed: `npm install`
+2. Clear Jest cache: `npx jest --clearCache`
+3. Re-run the tests: `npm test`
+
+### Node Version Issues
+
+If you encounter compatibility issues, check your Node.js version:
+
+```bash
+node --version
+```
+
+Consider using [nvm](https://github.com/nvm-sh/nvm) (Node Version Manager) to manage multiple Node.js versions.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Running Tests"
+    icon="flask"
+    href="/running-tests"
+  >
+    Learn how to run and target specific tests
+  </Card>
+  <Card
+    title="Data Structures"
+    icon="cubes"
+    href="/data-structures/overview"
+  >
+    Explore the implemented data structures
+  </Card>
+</CardGroup>

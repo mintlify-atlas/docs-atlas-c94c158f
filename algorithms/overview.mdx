@@ -1,0 +1,178 @@
+---
+title: 'Algorithms Overview'
+description: 'Comprehensive collection of fundamental algorithms in computer science'
+---
+
+Algorithms are the foundation of computer science, providing efficient solutions to computational problems. This collection covers essential algorithms across multiple categories, from basic sorting and searching to advanced graph algorithms and design techniques.
+
+## What You'll Find
+
+This documentation provides implementations and explanations for algorithms spanning four major categories:
+
+- **Sorting Algorithms**: 11 different approaches to ordering data
+- **Searching Algorithms**: Efficient methods for finding elements
+- **Graph Algorithms**: Shortest path and graph traversal techniques
+- **Design Techniques**: Fundamental algorithmic paradigms and problem-solving patterns
+
+Each algorithm includes TypeScript implementations, complexity analysis, use cases, and practical examples.
+
+## Algorithm Categories
+
+<CardGroup cols={2}>
+  <Card
+    title="Sorting Algorithms"
+    icon="arrow-down-1-9"
+    href="/algorithms/sorting"
+  >
+    Master 11 sorting algorithms from basic bubble sort to advanced radix sort, with complexity analysis and optimization techniques
+  </Card>
+  
+  <Card
+    title="Searching Algorithms"
+    icon="magnifying-glass"
+    href="/algorithms/searching"
+  >
+    Learn efficient search strategies including linear and binary search with iterative and recursive implementations
+  </Card>
+  
+  <Card
+    title="Graph Algorithms"
+    icon="network-wired"
+    href="/algorithms/graph"
+  >
+    Explore shortest path algorithms like Dijkstra's, essential for network routing, navigation, and optimization problems
+  </Card>
+  
+  <Card
+    title="Design Techniques"
+    icon="brain"
+    href="/algorithms/design-techniques"
+  >
+    Understand fundamental algorithmic paradigms: divide & conquer, dynamic programming, greedy algorithms, and backtracking
+  </Card>
+</CardGroup>
+
+## Sorting Algorithms
+
+Sorting is one of the most fundamental operations in computer science. Our collection includes 11 different sorting algorithms, each with unique characteristics and use cases:
+
+**Comparison-Based Sorts**
+- **Bubble Sort**: Simple but inefficient O(n²) algorithm, useful for teaching
+- **Selection Sort**: In-place O(n²) algorithm with minimal swaps
+- **Insertion Sort**: Efficient for small or nearly sorted datasets
+- **Merge Sort**: Stable O(n log n) divide-and-conquer algorithm
+- **Quick Sort**: Fast O(n log n) average-case in-place sorting
+- **Heap Sort**: O(n log n) in-place sorting using binary heap
+
+**Non-Comparison Sorts**
+- **Counting Sort**: O(n+k) algorithm for integers in a known range
+- **Radix Sort**: O(d×n) for sorting integers by digits
+- **Bucket Sort**: O(n+k) for uniformly distributed data
+
+**Specialized Sorts**
+- **Cycle Sort**: Minimizes writes to memory
+- **Topological Sort**: Orders vertices in directed acyclic graphs
+
+<Card title="Explore Sorting Algorithms" icon="arrow-down-1-9" href="/algorithms/sorting">
+  View detailed implementations, complexity analysis, and use cases
+</Card>
+
+## Searching Algorithms
+
+Efficient searching is critical for data retrieval and forms the basis of many complex algorithms:
+
+- **Linear Search**: O(n) sequential search through unsorted data
+- **Binary Search**: O(log n) search in sorted arrays with both iterative and recursive implementations
+
+<Card title="Explore Searching Algorithms" icon="magnifying-glass" href="/algorithms/searching">
+  Learn search strategies with practical examples
+</Card>
+
+## Graph Algorithms
+
+Graph algorithms solve problems involving networks, relationships, and pathfinding:
+
+- **Dijkstra's Algorithm**: Finds shortest paths from a source vertex to all other vertices in weighted graphs
+- **Topological Sort**: Orders vertices in directed acyclic graphs (DAGs) for dependency resolution
+
+These algorithms are essential for:
+- Network routing and navigation systems
+- Dependency resolution in build systems
+- Social network analysis
+- Resource scheduling
+
+<Card title="Explore Graph Algorithms" icon="network-wired" href="/algorithms/graph">
+  Dive into shortest path and graph traversal techniques
+</Card>
+
+## Design Techniques
+
+Understanding algorithmic design paradigms helps you solve complex problems by applying proven strategies:
+
+### Divide and Conquer
+Break problems into smaller subproblems, solve them independently, and combine results. Used in merge sort, quick sort, and binary search.
+
+### Dynamic Programming
+Solve complex problems by breaking them down into simpler overlapping subproblems and storing results to avoid redundant computation. Essential for optimization problems.
+
+### Greedy Algorithms
+Make locally optimal choices at each step to find global solutions. Used in Dijkstra's algorithm, Huffman coding, and activity selection.
+
+### Backtracking
+Explore all possible solutions by building candidates incrementally and abandoning them when they fail to satisfy constraints. Used in constraint satisfaction problems, puzzles, and combinatorial optimization.
+
+<Card title="Explore Design Techniques" icon="brain" href="/algorithms/design-techniques">
+  Master fundamental problem-solving paradigms
+</Card>
+
+## Complexity Analysis
+
+Understanding time and space complexity is crucial for selecting the right algorithm:
+
+- **Time Complexity**: How runtime grows with input size (O(1), O(log n), O(n), O(n log n), O(n²))
+- **Space Complexity**: Memory usage during execution
+- **Best/Average/Worst Case**: Performance under different conditions
+- **Stability**: Whether equal elements maintain relative order
+- **In-place**: Whether additional space is required
+
+Each algorithm page includes detailed complexity analysis to help you make informed decisions.
+
+## Getting Started
+
+<Steps>
+  <Step title="Choose a Category">
+    Start with sorting if you're new to algorithms, or jump to a specific category based on your needs
+  </Step>
+  
+  <Step title="Study the Implementation">
+    Review the TypeScript code to understand how the algorithm works
+  </Step>
+  
+  <Step title="Analyze Complexity">
+    Learn when to use each algorithm based on time and space constraints
+  </Step>
+  
+  <Step title="Practice">
+    Implement variations and solve related problems to deepen your understanding
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Sorting Algorithms" icon="arrow-down-1-9" href="/algorithms/sorting">
+    Start with fundamental sorting techniques
+  </Card>
+  
+  <Card title="Searching Algorithms" icon="magnifying-glass" href="/algorithms/searching">
+    Learn efficient search strategies
+  </Card>
+  
+  <Card title="Graph Algorithms" icon="network-wired" href="/algorithms/graph">
+    Explore pathfinding and traversal
+  </Card>
+  
+  <Card title="Design Techniques" icon="brain" href="/algorithms/design-techniques">
+    Master algorithmic paradigms
+  </Card>
+</CardGroup>

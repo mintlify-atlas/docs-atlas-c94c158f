@@ -1,0 +1,364 @@
+---
+title: 'Cycle Sort'
+description: 'In-place sorting algorithm that minimizes the number of writes to the array'
+---
+
+## Overview
+
+Cycle Sort is an in-place, unstable sorting algorithm that is particularly useful when write operations are expensive. It is theoretically optimal in terms of the number of memory writes. This implementation is specialized for arrays containing continuous numbers from 1 to n, where each number appears exactly once.
+
+## Implementation
+
+```typescript
+// This implementation assumes that the list contains continuous numbers from `1` to `n`
+export function cycleSort(list: number[]) {
+  let i = 0;
+  // the correct position for `list[i]` will always be `list[i] - 1`
+  let position = list[i] - 1;
+
+  while (i < list.length) {
+    position = list[i] - 1;
+
+    if (position !== i) {
+      // swap
+      [list[position], list[i]] = [list[i], list[position]];
+    } else {
+      i++;
+    }
+  }
+
+  return list;
+}
+```
+
+## How It Works
+
+1. **Identify Cycles**: The algorithm works by identifying cycles - groups of elements that need to be rotated to reach their correct positions
+2. **Calculate Position**: For continuous numbers 1 to n, the correct position of value v is index v-1
+3. **Swap Elements**: If an element is not in its correct position, swap it with the element at its target position
+4. **Move Forward**: Only advance to the next index when the current position contains its correct value
+5. **Repeat**: Continue until all elements are in their correct positions
+
+<Note>
+This implementation is optimized for a specific case: arrays containing continuous integers from 1 to n. For general-purpose sorting, a different implementation is needed.
+</Note>
+
+## Complexity Analysis
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    - **Best Case**: O(n) - when array is already sorted
+    - **Average Case**: O(n)
+    - **Worst Case**: O(n)
+    - Linear time in all cases for this variant
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    - **Space**: O(1) - sorts in place
+    - **Writes**: O(n) - minimal writes
+    - **Swaps**: At most n-1 swaps
+  </Card>
+</CardGroup>
+
+## Usage Example
+
+```typescript
+import { cycleSort } from './cycle-sort';
+
+// Example 1: Permutation of 1 to n
+const numbers = [3, 1, 5, 4, 2];
+const sorted = cycleSort(numbers);
+console.log(sorted); // [1, 2, 3, 4, 5]
+
+// Example 2: Already sorted
+const alreadySorted = [1, 2, 3, 4, 5];
+cycleSort(alreadySorted); // [1, 2, 3, 4, 5]
+
+// Example 3: Reverse sorted
+const reverseSorted = [5, 4, 3, 2, 1];
+cycleSort(reverseSorted); // [1, 2, 3, 4, 5]
+
+// Example 4: Single swap needed
+const oneSwap = [1, 3, 2, 4, 5];
+cycleSort(oneSwap); // [1, 2, 3, 4, 5]
+
+// Example 5: Rotated array
+const rotated = [4, 5, 1, 2, 3];
+cycleSort(rotated); // [1, 2, 3, 4, 5]
+```
+
+## Visual Example
+
+Let's trace through sorting `[3, 1, 5, 4, 2]`:
+
+```
+Initial: [3, 1, 5, 4, 2]
+         i=0
+
+Step 1: i=0, list[0]=3, position=3-1=2
+  3 should be at index 2
+  Swap list[0] and list[2]: [5, 1, 3, 4, 2]
+  Stay at i=0
+
+Step 2: i=0, list[0]=5, position=5-1=4
+  5 should be at index 4
+  Swap list[0] and list[4]: [2, 1, 3, 4, 5]
+  Stay at i=0
+
+Step 3: i=0, list[0]=2, position=2-1=1
+  2 should be at index 1
+  Swap list[0] and list[1]: [1, 2, 3, 4, 5]
+  Stay at i=0
+
+Step 4: i=0, list[0]=1, position=1-1=0
+  1 is in correct position (position == i)
+  Move to i=1
+
+Step 5: i=1, list[1]=2, position=2-1=1
+  2 is in correct position (position == i)
+  Move to i=2
+
+Steps 6-8: All remaining elements are in correct positions
+  i=2: list[2]=3 is correct
+  i=3: list[3]=4 is correct
+  i=4: list[4]=5 is correct
+
+Final: [1, 2, 3, 4, 5]
+```
+
+## Characteristics
+
+<AccordionGroup>
+  <Accordion title="Stability">
+    Cycle Sort is **not stable**. Equal elements (if they existed in this variant) may not maintain their relative order.
+  </Accordion>
+  
+  <Accordion title="In-Place">
+    Yes, Cycle Sort is **in-place**. It only requires O(1) additional space.
+  </Accordion>
+  
+  <Accordion title="Adaptive">
+    Yes, this variant is **adaptive** to some degree. Already-sorted elements are quickly recognized and skipped.
+  </Accordion>
+  
+  <Accordion title="Minimal Writes">
+    Yes, Cycle Sort performs the **minimum number of writes** possible - at most n-1 swaps (3n writes) to sort n elements.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use
+
+<Check>
+Cycle Sort is optimal when write operations are expensive or need to be minimized.
+</Check>
+
+**Good for:**
+- Arrays with continuous integers 1 to n (this implementation)
+- Systems where writes are expensive (flash memory, EEPROMs)
+- Finding missing/duplicate numbers in sequences
+- In-place permutation problems
+- When minimizing memory writes is critical
+- Arrays where each element is close to its final position
+
+**Avoid when:**
+- Need to sort arbitrary data types
+- Stability is required
+- Array doesn't contain continuous integers
+- Performance is more important than write minimization
+- Need a general-purpose sorting algorithm
+
+## Performance Insights
+
+<Tip>
+**Why Minimize Writes?**
+
+**Flash Memory / SSD:**
+- Limited write cycles (typically 10,000-100,000)
+- Writes are much slower than reads
+- Wear leveling extends life by distributing writes
+- Minimizing writes increases hardware lifespan
+
+**Example**: Sorting 1,000 elements
+- Quick Sort: ~10,000 writes (average)
+- Merge Sort: ~20,000 writes
+- Cycle Sort: ~3,000 writes (worst case)
+- **Result**: 3-7x fewer writes!
+</Tip>
+
+### Write Operations Analysis
+
+```
+For n elements:
+
+Worst case writes:
+  - Every element in wrong position
+  - Each needs one swap (3 writes)
+  - At most n-1 swaps
+  - Total: 3(n-1) writes
+
+Best case writes:
+  - Array already sorted
+  - 0 swaps needed
+  - Total: 0 writes
+
+This is theoretically optimal!
+No comparison-based sort can do better.
+```
+
+## Code Walkthrough
+
+```typescript
+export function cycleSort(list: number[]) {
+  let i = 0;                    // Current index
+  let position = list[i] - 1;   // Target position for current element
+
+  while (i < list.length) {
+    // Calculate where list[i] should be
+    // For value v in range [1, n], correct index is v-1
+    position = list[i] - 1;
+
+    // If element is not in its correct position
+    if (position !== i) {
+      // Swap it with the element at its target position
+      // This moves list[i] to its correct spot and brings
+      // a new element to position i for next iteration
+      [list[position], list[i]] = [list[i], list[position]];
+      // Don't increment i - check the new element at i
+    } else {
+      // Element is in correct position, move to next
+      i++;
+    }
+  }
+
+  return list;
+}
+```
+
+## General Cycle Sort
+
+The shown implementation is specialized. Here's the general algorithm for arbitrary arrays:
+
+```typescript
+function generalCycleSort(list: number[]) {
+  let writes = 0;
+
+  // Loop through the array to find cycles
+  for (let cycleStart = 0; cycleStart < list.length - 1; cycleStart++) {
+    let item = list[cycleStart];
+
+    // Find position where we put the item
+    let pos = cycleStart;
+    for (let i = cycleStart + 1; i < list.length; i++) {
+      if (list[i] < item) pos++;
+    }
+
+    // If item is already in correct position
+    if (pos === cycleStart) continue;
+
+    // Skip duplicates
+    while (item === list[pos]) pos++;
+
+    // Put the item to its right position
+    [list[pos], item] = [item, list[pos]];
+    writes++;
+
+    // Rotate rest of the cycle
+    while (pos !== cycleStart) {
+      pos = cycleStart;
+
+      // Find position where we put the element
+      for (let i = cycleStart + 1; i < list.length; i++) {
+        if (list[i] < item) pos++;
+      }
+
+      // Skip duplicates
+      while (item === list[pos]) pos++;
+
+      // Put the item to its right position
+      [list[pos], item] = [item, list[pos]];
+      writes++;
+    }
+  }
+
+  return list;
+}
+```
+
+<Warning>
+The general Cycle Sort algorithm has O(n²) time complexity due to finding the position of each element. The specialized version shown in the implementation is O(n) because position calculation is O(1).
+</Warning>
+
+## Related Problems
+
+<Info>
+**Common Interview Problems Using This Technique:**
+
+1. **Find Missing Number**: Given [1,2,4,5], find missing number (3)
+2. **Find Duplicate Number**: Given [1,2,3,3,4], find duplicate (3)
+3. **Find All Duplicates**: Given [4,3,2,7,8,2,3,1], find all duplicates
+4. **First Missing Positive**: Find smallest missing positive integer
+5. **Set Mismatch**: Find number that appears twice and the one missing
+</Info>
+
+### Example: Find Missing Number
+
+```typescript
+function findMissingNumber(nums: number[]): number {
+  let i = 0;
+  
+  // Place each number in its correct position
+  while (i < nums.length) {
+    const pos = nums[i] - 1;
+    
+    // If number is in range and not in correct position
+    if (nums[i] > 0 && nums[i] <= nums.length && nums[i] !== nums[pos]) {
+      [nums[i], nums[pos]] = [nums[pos], nums[i]];
+    } else {
+      i++;
+    }
+  }
+  
+  // Find first position where index+1 != value
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] !== i + 1) {
+      return i + 1;
+    }
+  }
+  
+  return nums.length + 1;
+}
+```
+
+## Comparison with Other Sorts
+
+| Algorithm | Best Case | Average Case | Worst Case | Space | Writes | Use Case |
+|-----------|-----------|--------------|------------|-------|--------|----------|
+| Cycle Sort* | O(n) | O(n) | O(n) | O(1) | ≤ 3n | Continuous integers |
+| Cycle Sort (General) | O(n²) | O(n²) | O(n²) | O(1) | ≤ 3n | Minimal writes |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | O(n log n) | General purpose |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | O(n log n) | Stable sort |
+| Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | n | Small arrays |
+
+*This implementation
+
+## Theoretical Optimality
+
+<Note>
+**Why Cycle Sort is Optimal for Writes:**
+
+Any comparison-based sorting algorithm must perform at least n-1 swaps in the worst case to sort an array where every element is out of place. Since each swap involves 3 writes (using a temporary variable), the minimum number of writes is 3(n-1).
+
+Cycle Sort achieves this theoretical minimum, making it optimal for scenarios where write operations are the primary concern.
+</Note>
+
+## Real-World Applications
+
+<Info>
+**Where Cycle Sort Technique is Used:**
+
+1. **Flash Memory Management**: Minimizing writes to extend hardware life
+2. **EEPROM Programming**: Where write cycles are limited
+3. **Database Indexing**: Reorganizing data with minimal I/O
+4. **Memory-Constrained Systems**: In-place sorting with minimal overhead
+5. **Finding Array Anomalies**: Missing, duplicate, or misplaced elements
+6. **Permutation Problems**: Restoring canonical order efficiently
+</Info>

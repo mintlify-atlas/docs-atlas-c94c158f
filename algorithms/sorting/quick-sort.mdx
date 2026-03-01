@@ -1,0 +1,294 @@
+---
+title: 'Quick Sort'
+description: 'Highly efficient divide-and-conquer sorting algorithm with average O(n log n) performance'
+---
+
+## Overview
+
+Quick Sort is a highly efficient divide-and-conquer sorting algorithm. It works by selecting a 'pivot' element from the array and partitioning the other elements into two sub-arrays according to whether they are less than or greater than the pivot. The sub-arrays are then sorted recursively. Quick Sort is often faster in practice than other O(n log n) algorithms.
+
+## Implementation
+
+```typescript
+function quick(list: number[], left: number, right: number) {
+  if (list.length < 2) {
+    return list;
+  }
+
+  const pivot = list[Math.floor((right + left) / 2)];
+
+  let i = left;
+  let j = right;
+
+  while (i <= j) {
+    while (list[i] < pivot) {
+      i++;
+    }
+
+    while (list[j] > pivot) {
+      j--;
+    }
+
+    if (i <= j) {
+      [list[i], list[j]] = [list[j], list[i]];
+      i++;
+      j--;
+    }
+  }
+
+  if (left < i - 1) {
+    quick(list, left, i - 1);
+  }
+
+  if (i < right) {
+    quick(list, i, right);
+  }
+
+  return list;
+}
+
+export function quickSort(list: number[]) {
+  return quick(list, 0, list.length - 1);
+}
+```
+
+## How It Works
+
+1. **Choose Pivot**: Select a pivot element (this implementation uses the middle element)
+2. **Partition**: Rearrange the array so elements smaller than the pivot come before it, and elements greater come after
+3. **Recursively Sort**: Apply the same process to the sub-arrays on either side of the pivot
+4. **Base Case**: Arrays with fewer than 2 elements are already sorted
+
+<Note>
+The choice of pivot is crucial to Quick Sort's performance. This implementation uses the middle element to avoid worst-case behavior on already-sorted arrays.
+</Note>
+
+## Complexity Analysis
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    - **Best Case**: O(n log n) - balanced partitions
+    - **Average Case**: O(n log n)
+    - **Worst Case**: O(n²) - poor pivot choices
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    - **Space**: O(1) - sorts in place
+    - **Call Stack**: O(log n) average, O(n) worst case
+  </Card>
+</CardGroup>
+
+## Usage Example
+
+```typescript
+import { quickSort } from './quick-sort';
+
+// Example 1: Sort a simple array
+const numbers = [10, 7, 8, 9, 1, 5];
+const sorted = quickSort(numbers);
+console.log(sorted); // [1, 5, 7, 8, 9, 10]
+
+// Example 2: Large array (where Quick Sort excels)
+const large = [64, 34, 25, 12, 22, 11, 90, 88, 45, 50, 23, 36];
+quickSort(large);
+
+// Example 3: Array with duplicates
+const withDuplicates = [3, 6, 8, 10, 1, 2, 1];
+quickSort(withDuplicates); // [1, 1, 2, 3, 6, 8, 10]
+
+// Example 4: Already sorted (still good performance with middle pivot)
+const alreadySorted = [1, 2, 3, 4, 5];
+quickSort(alreadySorted); // [1, 2, 3, 4, 5]
+```
+
+## Visual Example
+
+Let's trace through sorting `[10, 7, 8, 9, 1, 5]`:
+
+```
+Initial: [10, 7, 8, 9, 1, 5]
+Pivot: 8 (middle element)
+
+Partition:
+  [10, 7, 8, 9, 1, 5]
+   i              j
+  
+  Swap 10 and 5:
+  [5, 7, 8, 9, 1, 10]
+      i        j
+  
+  Swap 9 and 1:
+  [5, 7, 1, 9, 8, 10]
+           j  i
+  
+  Result: [5, 7, 1] 8 [9, 10]
+          (< 8)       (> 8)
+
+Recursively sort left: [5, 7, 1]
+  Pivot: 7
+  Result: [1, 5, 7]
+
+Recursively sort right: [9, 10]
+  Pivot: 9
+  Result: [9, 10]
+
+Final: [1, 5, 7, 8, 9, 10]
+```
+
+## Characteristics
+
+<AccordionGroup>
+  <Accordion title="Stability">
+    Quick Sort is **not stable** by default. Equal elements may not maintain their relative order. Stable variants exist but require additional space or complexity.
+  </Accordion>
+  
+  <Accordion title="In-Place">
+    Yes, Quick Sort is **in-place**. It only requires O(log n) stack space for recursion in the average case.
+  </Accordion>
+  
+  <Accordion title="Adaptive">
+    No, standard Quick Sort is **not adaptive**. It doesn't significantly benefit from pre-sorted data, though pivot selection strategies can help.
+  </Accordion>
+  
+  <Accordion title="Online">
+    No, Quick Sort is **not online**. It needs access to all elements for partitioning.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use
+
+<Check>
+Quick Sort is often the fastest sorting algorithm in practice and is widely used in standard libraries.
+</Check>
+
+**Good for:**
+- Large datasets (typically the fastest in practice)
+- General-purpose sorting (used in many standard libraries)
+- When average-case performance is more important than worst-case
+- Memory-constrained environments (in-place sorting)
+- When a stable sort is not required
+
+**Avoid when:**
+- Worst-case performance guarantees are critical
+- Stable sorting is required
+- Data is already sorted or nearly sorted (without good pivot selection)
+- Stack space is extremely limited
+
+## Performance Insights
+
+<Tip>
+**Why Quick Sort is Fast in Practice:**
+
+1. **Cache Efficiency**: Good locality of reference
+2. **In-Place**: No additional memory allocation overhead
+3. **Small Constants**: Fewer operations per element than Merge Sort
+4. **Average Case**: O(n log n) is typical in practice
+5. **Tail Recursion**: Can be optimized to reduce stack usage
+</Tip>
+
+### Partition Strategy
+
+This implementation uses the **Hoare partition scheme**:
+- Two pointers start at the ends and move toward each other
+- Elements are swapped when pointers find elements on the wrong side of the pivot
+- Generally more efficient than the Lomuto partition scheme
+
+## Pivot Selection Strategies
+
+<Info>
+Different pivot selection methods affect performance:
+
+**Middle Element** (used here):
+- Avoids worst case on sorted/reverse-sorted data
+- Simple to implement
+- Good for many real-world scenarios
+
+**First or Last Element**:
+- Simplest but worst case on sorted data
+- O(n²) performance on already sorted arrays
+
+**Random Element**:
+- Probabilistically avoids worst case
+- Expected O(n log n) even on adversarial input
+
+**Median-of-Three**:
+- Take median of first, middle, and last elements
+- Better pivot choice, fewer comparisons
+- Used in many optimized implementations
+</Info>
+
+## Code Walkthrough
+
+### Helper Function: `quick()`
+```typescript
+function quick(list: number[], left: number, right: number) {
+  if (list.length < 2) {
+    return list;  // Base case
+  }
+
+  const pivot = list[Math.floor((right + left) / 2)];  // Choose middle
+
+  let i = left;   // Left pointer
+  let j = right;  // Right pointer
+
+  // Partition phase
+  while (i <= j) {
+    // Find element on left that should be on right
+    while (list[i] < pivot) {
+      i++;
+    }
+
+    // Find element on right that should be on left
+    while (list[j] > pivot) {
+      j--;
+    }
+
+    // Swap if pointers haven't crossed
+    if (i <= j) {
+      [list[i], list[j]] = [list[j], list[i]];
+      i++;
+      j--;
+    }
+  }
+
+  // Recursively sort left partition
+  if (left < i - 1) {
+    quick(list, left, i - 1);
+  }
+
+  // Recursively sort right partition
+  if (i < right) {
+    quick(list, i, right);
+  }
+
+  return list;
+}
+```
+
+### Main Function: `quickSort()`
+```typescript
+export function quickSort(list: number[]) {
+  // Initiate sorting on entire array
+  return quick(list, 0, list.length - 1);
+}
+```
+
+## Comparison with Other Sorts
+
+| Algorithm | Best Case | Average Case | Worst Case | Space | Stable | In Practice |
+|-----------|-----------|--------------|------------|-------|--------|-------------|
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No | Fastest |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes | Predictable |
+| Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | No | Consistent |
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | Small arrays |
+
+## Optimizations
+
+<Warning>
+**Common Optimizations:**
+
+1. **Insertion Sort for Small Subarrays**: Switch to Insertion Sort when subarray size < 10-20
+2. **Three-Way Partitioning**: Handle many duplicate elements efficiently
+3. **Tail Recursion Elimination**: Reduce stack depth
+4. **Median-of-Three Pivot**: Better pivot selection
+5. **Introspective Sort**: Switch to Heap Sort if recursion depth exceeds threshold
+</Warning>

@@ -1,0 +1,950 @@
+---
+title: 'Problems by Algorithm Technique'
+description: 'Coding problems organized by algorithm design technique: dynamic programming, divide & conquer, greedy algorithms, and backtracking'
+icon: 'brain'
+---
+
+## Overview
+
+This page organizes coding problems by their underlying algorithm design technique. Understanding these techniques is crucial for solving complex algorithmic challenges efficiently.
+
+<Note>
+  Source code location: `/workspace/source/algorithms/design-techniques/`
+</Note>
+
+---
+
+## Dynamic Programming (1 Problem)
+
+Dynamic programming solves problems by breaking them into **overlapping subproblems** and storing solutions to avoid redundant computation. It's ideal for optimization problems with optimal substructure.
+
+<Accordion title="Characteristics of DP Problems">
+  **When to use Dynamic Programming:**
+  
+  - Problem has **optimal substructure**: optimal solution contains optimal solutions to subproblems
+  - Problem has **overlapping subproblems**: same subproblems are solved multiple times
+  - Can be solved by combining solutions to smaller versions of the same problem
+  
+  **Two main approaches:**
+  
+  1. **Memoization (Top-Down):** Recursive solution with caching
+  2. **Tabulation (Bottom-Up):** Iterative solution building a table
+  
+  **Common DP patterns:** Fibonacci, knapsack, longest common subsequence, matrix chain multiplication, edit distance
+</Accordion>
+
+<Accordion title="Problem 1: Longest Common Subsequence (LCS)" icon="text">
+  **Difficulty:** Hard
+  
+  **Problem Statement:**
+  Given two sequences, find the length of the longest subsequence present in both of them. A subsequence is a sequence that appears in the same relative order but not necessarily contiguous.
+  
+  **Example:**
+  ```typescript
+  Input: strA = "ABCDGH", strB = "AEDFHR"
+  Output: 3
+  Explanation: LCS is "ADH"
+  
+  Subsequences of "ABCDEFG":
+  - "abc", "abg", "bdf", "aeg", "acefg" (and many more)
+  ```
+  
+  <Tabs>
+    <Tab title="Solution: Bottom-Up DP">
+      **Approach:** Build a 2D table where `dp[i][j]` represents the LCS length of first i characters of strA and first j characters of strB.
+      
+      **Time Complexity:** O(m × n) where m and n are string lengths
+      
+      **Space Complexity:** O(m × n)
+      
+      **Algorithm:**
+      1. Create a (m+1) × (n+1) matrix initialized to 0
+      2. For each character pair:
+         - If characters match: `dp[i][j] = dp[i-1][j-1] + 1`
+         - If they don't match: `dp[i][j] = max(dp[i-1][j], dp[i][j-1])`
+      3. Result is in `dp[m][n]`
+      
+      **DP Table Visualization:**
+      ```typescript
+      //    "" A  B  C  D  G  H
+      // "" [ 0  0  0  0  0  0  0]
+      // A  [ 0  1  1  1  1  1  1]
+      // E  [ 0  1  1  1  1  1  1]
+      // D  [ 0  1  1  1  2  2  2]
+      // F  [ 0  1  1  1  2  2  2]
+      // H  [ 0  1  1  1  2  2  3]
+      // R  [ 0  1  1  1  2  2  3] ← Result
+      ```
+      
+      **Implementation:**
+      ```typescript
+      const strA = 'ABCDGH';
+      const strB = 'AEDFHR';
+      const matrix: number[][] = [];
+      
+      // Initialize matrix
+      for (let i = 0; i <= strA.length; i++) {
+        matrix[i] = [];
+        for (let j = 0; j <= strB.length; j++) {
+          matrix[i][j] = 0;
+        }
+      }
+      
+      // Fill matrix
+      for (let i = 1; i <= strA.length; i++) {
+        for (let j = 1; j <= strB.length; j++) {
+          if (strB[i - 1] === strA[j - 1]) {
+            // Characters match: extend previous LCS
+            matrix[i][j] = matrix[i-1][j-1] + 1;
+          } else {
+            // Characters don't match: take max from left or top
+            matrix[i][j] = Math.max(
+              matrix[i-1][j],
+              matrix[i][j-1]
+            );
+          }
+        }
+      }
+      
+      // Result is bottom-right cell
+      const lcsLength = matrix[strB.length][strA.length]; // 3
+      ```
+    </Tab>
+    
+    <Tab title="Why DP Works Here">
+      **Overlapping Subproblems:**
+      
+      When computing LCS("ABC", "AC"), we need:
+      - LCS("AB", "AC")
+      - LCS("ABC", "A")
+      - Both need LCS("AB", "A")
+      
+      Without memoization, we'd compute LCS("AB", "A") multiple times.
+      
+      **Optimal Substructure:**
+      
+      If we know:
+      - LCS("AB", "AE") = 1 (the "A")
+      
+      And we add matching characters:
+      - LCS("ABC", "AEC") = LCS("AB", "AE") + 1 = 2
+      
+      The optimal solution builds on optimal solutions to subproblems.
+    </Tab>
+    
+    <Tab title="Variations">
+      **Related DP Problems:**
+      
+      1. **Print the LCS:** Backtrack through the DP table
+      2. **Longest Common Substring:** Requires consecutive characters (reset to 0 on mismatch)
+      3. **Edit Distance:** Similar DP structure with insert/delete/replace costs
+      4. **Shortest Common Supersequence:** Uses LCS result
+      
+      **Space Optimization:**
+      
+      Since we only need the previous row, we can reduce space to O(min(m, n)) by keeping only two rows.
+    </Tab>
+  </Tabs>
+  
+  **Source:** `/workspace/source/algorithms/design-techniques/dynamic-programming/dynamic-programming.problems.test.ts:2-41`
+</Accordion>
+
+<Info>
+  **Learning Resources:**
+  - Dynamic programming is about "trading time for space" by storing computed results
+  - Start with simpler DP problems (Fibonacci, climbing stairs) before tackling LCS
+  - Practice identifying the recurrence relation - this is the key to DP solutions
+</Info>
+
+---
+
+## Divide and Conquer (2 Problems)
+
+Divide and conquer breaks problems into **independent subproblems**, solves them recursively, and combines results. Unlike DP, subproblems don't overlap.
+
+<Accordion title="Characteristics of D&C Problems">
+  **When to use Divide and Conquer:**
+  
+  - Problem can be broken into independent subproblems
+  - Subproblems are of the same type as original problem
+  - Solutions to subproblems can be combined to solve the original
+  - Base case is simple enough to solve directly
+  
+  **Three steps:**
+  
+  1. **Divide:** Break problem into smaller subproblems
+  2. **Conquer:** Solve subproblems recursively
+  3. **Combine:** Merge solutions to get final answer
+  
+  **Classic examples:** Merge sort, quick sort, binary search, Karatsuba multiplication
+</Accordion>
+
+<Accordion title="Problem 1: Maximum Subarray Sum" icon="chart-line">
+  **Difficulty:** Medium-Hard
+  
+  **Problem Statement:**
+  Find the contiguous subarray within a one-dimensional array of numbers that has the largest sum.
+  
+  **Example:**
+  ```typescript
+  Input: [-2, -5, 6, -2, -3, 1, 5, -6]
+  Output: 7
+  Explanation: Subarray [6, -2, -3, 1, 5] has sum = 7
+  ```
+  
+  <Tabs>
+    <Tab title="Solution: Divide & Conquer">
+      **Approach:** At each division, the maximum sum is either in the left half, right half, or crosses the middle.
+      
+      **Time Complexity:** O(n log n)
+      
+      **Space Complexity:** O(log n) for recursion stack
+      
+      **Algorithm:**
+      1. Divide array into left and right halves
+      2. Recursively find max sum in left half
+      3. Recursively find max sum in right half
+      4. Find max sum crossing the middle
+      5. Return maximum of the three
+      
+      **Implementation:**
+      ```typescript
+      function middleMaxSum(
+        arr: number[],
+        left: number,
+        middle: number,
+        right: number
+      ): number {
+        // Find max sum in left half ending at middle
+        let leftSum = 0;
+        let maxLeftSum = Number.MIN_SAFE_INTEGER;
+        for (let i = middle; i >= left; i--) {
+          leftSum += arr[i];
+          if (leftSum > maxLeftSum) {
+            maxLeftSum = leftSum;
+          }
+        }
+        
+        // Find max sum in right half starting at middle+1
+        let rightSum = 0;
+        let maxRightSum = Number.MIN_SAFE_INTEGER;
+        for (let i = middle + 1; i <= right; i++) {
+          rightSum += arr[i];
+          if (rightSum > maxRightSum) {
+            maxRightSum = rightSum;
+          }
+        }
+        
+        // Return max of: crossing sum, left only, right only
+        return Math.max(
+          maxLeftSum + maxRightSum,
+          maxLeftSum,
+          maxRightSum
+        );
+      }
+      
+      function maxSum(arr: number[], left: number, right: number): number {
+        // Base case: single element
+        if (left === right) {
+          return arr[left];
+        }
+        
+        const middle = Math.floor((left + right) / 2);
+        
+        // Return max of: left half, crossing middle, right half
+        return Math.max(
+          maxSum(arr, left, middle),
+          middleMaxSum(arr, left, middle, right),
+          maxSum(arr, middle + 1, right)
+        );
+      }
+      
+      const result = maxSum(arr, 0, arr.length - 1);
+      ```
+    </Tab>
+    
+    <Tab title="Why D&C Works Here">
+      **Divide:**
+      ```
+      [-2, -5, 6, -2, -3, 1, 5, -6]
+               ^
+            middle
+      
+      Left:  [-2, -5, 6, -2]
+      Right: [-3, 1, 5, -6]
+      Cross: [6, -2, -3, 1, 5]
+      ```
+      
+      **Conquer:**
+      - Max in left half: 6
+      - Max in right half: 6 (subarray [1, 5])
+      - Max crossing middle: 7 (subarray [6, -2, -3, 1, 5])
+      
+      **Combine:**
+      - Result: max(6, 6, 7) = 7
+      
+      **Key Insight:** The maximum subarray either:
+      1. Lies entirely in left half
+      2. Lies entirely in right half
+      3. Crosses the middle point
+      
+      We recursively solve 1 and 2, and calculate 3 in linear time.
+    </Tab>
+    
+    <Tab title="Alternative: Kadane's Algorithm">
+      **Note:** There's a more efficient O(n) solution called Kadane's Algorithm:
+      
+      ```typescript
+      function kadane(arr: number[]): number {
+        let maxSoFar = arr[0];
+        let maxEndingHere = arr[0];
+        
+        for (let i = 1; i < arr.length; i++) {
+          maxEndingHere = Math.max(arr[i], maxEndingHere + arr[i]);
+          maxSoFar = Math.max(maxSoFar, maxEndingHere);
+        }
+        
+        return maxSoFar;
+      }
+      ```
+      
+      **Time:** O(n), **Space:** O(1)
+      
+      However, the divide & conquer approach demonstrates the technique and extends to 2D maximum subarray problems.
+    </Tab>
+  </Tabs>
+  
+  **Source:** `/workspace/source/algorithms/design-techniques/divide-and-conquer/divide-and-conquer.problems.test.ts:3-53`
+</Accordion>
+
+<Accordion title="Problem 2: Inversion Count" icon="swap">
+  **Difficulty:** Hard
+  
+  **Problem Statement:**
+  Count the number of inversions in an array. An inversion is a pair of indices (i, j) where i < j but arr[i] > arr[j]. This indicates how far the array is from being sorted.
+  
+  **Example:**
+  ```typescript
+  Input: [2, 4, 1, 3, 5]
+  Output: 3
+  Explanation: Inversions are (2,1), (4,1), (4,3)
+  ```
+  
+  <Tabs>
+    <Tab title="Solution: Modified Merge Sort">
+      **Approach:** Count inversions while performing merge sort.
+      
+      **Time Complexity:** O(n log n)
+      
+      **Space Complexity:** O(n)
+      
+      **Key Insight:** When merging two sorted subarrays, if an element from the right subarray is placed before elements from the left subarray, all remaining left elements form inversions with it.
+      
+      **Implementation:**
+      ```typescript
+      function merge(
+        [leftSubArr, leftInv]: [number[], number],
+        [rightSubArr, rightInv]: [number[], number]
+      ): [number[], number] {
+        const arr = [];
+        let i = 0;
+        let j = 0;
+        let swaps = leftInv + rightInv;
+        
+        while (i < leftSubArr.length && j < rightSubArr.length) {
+          if (leftSubArr[i] < rightSubArr[j]) {
+            arr.push(leftSubArr[i++]);
+          } else {
+            arr.push(rightSubArr[j++]);
+            
+            // Key insight: all remaining elements in left subarray
+            // are greater than rightSubArr[j], so they form inversions
+            swaps += leftSubArr.length - i;
+          }
+        }
+        
+        return [
+          [...arr, ...leftSubArr.slice(i), ...rightSubArr.slice(j)],
+          swaps,
+        ];
+      }
+      
+      function getInversionCount([arr, swaps]: [number[], number]): [
+        number[],
+        number
+      ] {
+        // Base case
+        if (arr.length === 1) {
+          return [arr, swaps];
+        }
+        
+        const mid = Math.floor(arr.length / 2);
+        const left = getInversionCount([arr.slice(0, mid), swaps]);
+        const right = getInversionCount([arr.slice(mid), swaps]);
+        
+        return merge(left, right);
+      }
+      
+      const [sortedArr, inversions] = getInversionCount([[2, 4, 1, 3, 5], 0]);
+      // sortedArr: [1, 2, 3, 4, 5]
+      // inversions: 3
+      ```
+    </Tab>
+    
+    <Tab title="Why Modified Merge Sort?">
+      **Brute Force (O(n²)):**
+      ```typescript
+      let count = 0;
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i + 1; j < arr.length; j++) {
+          if (arr[i] > arr[j]) count++;
+        }
+      }
+      ```
+      
+      **Divide & Conquer Insight:**
+      
+      When merging `[2, 4]` and `[1, 3]`:
+      
+      1. Compare 2 and 1: 1 is smaller
+         - Both 2 and 4 are inversions with 1
+         - Count += 2
+      
+      2. Compare 2 and 3: 2 is smaller
+         - No inversions
+      
+      3. Compare 4 and 3: 3 is smaller
+         - 4 is an inversion with 3
+         - Count += 1
+      
+      **Total inversions = 3**
+      
+      We piggyback on merge sort's divide and conquer structure to count inversions efficiently.
+    </Tab>
+    
+    <Tab title="Step-by-Step Example">
+      ```typescript
+      Input: [2, 4, 1, 3, 5]
+      
+      // Divide
+      [2, 4, 1, 3, 5]
+           |
+      [2, 4] [1, 3, 5]
+         |       |
+      [2] [4]  [1] [3, 5]
+                     |
+                   [3] [5]
+      
+      // Conquer & Merge (counting inversions)
+      [3] + [5] → [3, 5] (0 inversions)
+      [1] + [3, 5] → [1, 3, 5] (0 inversions)
+      [2] + [4] → [2, 4] (0 inversions)
+      [2, 4] + [1, 3, 5]:
+        - 1 before [2, 4]: +2 inversions
+        - 2 before [3, 5]: 0 inversions
+        - 3 before [4]: 0 inversions  
+        - 4 before [5]: 0 inversions
+        → [1, 2, 3, 4, 5] (3 inversions)
+      
+      Total: 3 inversions
+      ```
+    </Tab>
+  </Tabs>
+  
+  **Source:** `/workspace/source/algorithms/design-techniques/divide-and-conquer/divide-and-conquer.problems.test.ts:55-116`
+</Accordion>
+
+<Info>
+  **D&C vs DP:** Divide and conquer splits into **independent** subproblems (like splitting an array in half), while dynamic programming handles **overlapping** subproblems (like computing Fibonacci numbers where F(n) needs F(n-1) and F(n-2), and F(n-1) also needs F(n-2)).
+</Info>
+
+---
+
+## Greedy Algorithms (1 Problem)
+
+Greedy algorithms make locally optimal choices at each step, hoping to find a global optimum. They're fast but don't always guarantee the optimal solution.
+
+<Accordion title="Characteristics of Greedy Problems">
+  **When to use Greedy Algorithms:**
+  
+  - Problem has **greedy choice property**: local optimum leads to global optimum
+  - Problem has **optimal substructure**: optimal solution contains optimal solutions to subproblems
+  - No need to reconsider previous choices
+  
+  **Key difference from DP:**
+  - Greedy: Make best choice now, never look back
+  - DP: Consider all choices, pick best based on future implications
+  
+  **Classic examples:** Activity selection, Huffman coding, Dijkstra's algorithm, Prim's MST, Kruskal's MST
+  
+  **Pitfall:** Greedy doesn't always work! Must prove greedy choice property.
+</Accordion>
+
+<Accordion title="Problem 1: Minimum Coin Change" icon="coins">
+  **Difficulty:** Easy-Medium
+  
+  **Problem Statement:**
+  Given a value V and an infinite supply of coins with denominations [c1, c2, ..., cn], find the minimum number of coins needed to make change for V.
+  
+  **Example:**
+  ```typescript
+  Input: value = 186, coins = [1, 5, 10, 25]
+  Output: 9 coins
+  Breakdown: 7×25 + 1×10 + 1×1 = 175 + 10 + 1 = 186
+  ```
+  
+  <Tabs>
+    <Tab title="Solution: Greedy Approach">
+      **Approach:** Always pick the largest coin that doesn't exceed the remaining amount.
+      
+      **Time Complexity:** O(n × k) where n is number of coin types, k is value/largest coin
+      
+      **Space Complexity:** O(n) for storing coin counts
+      
+      **Algorithm:**
+      1. Sort coins in descending order
+      2. While amount remains:
+         - Take as many of the largest coin as possible
+         - Move to next smaller coin
+      3. Count total coins used
+      
+      **Implementation:**
+      ```typescript
+      const value = 186;
+      const coins = [1, 5, 10, 25];
+      
+      const result: Record<number, number> = {};
+      let amount = value;
+      let count = 0;
+      
+      // Process from largest to smallest
+      for (let i = coins.length - 1; i >= 0; i--) {
+        while (coins[i] <= amount) {
+          // Take as many of this coin as possible
+          const coinCount = Math.floor(amount / coins[i]);
+          
+          result[coins[i]] = result[coins[i]]
+            ? result[coins[i]] + coinCount
+            : coinCount;
+          
+          count += coinCount;
+          amount = amount % coins[i];
+        }
+      }
+      
+      // Result: { '1': 1, '10': 1, '25': 7 }
+      // Total: 9 coins
+      ```
+    </Tab>
+    
+    <Tab title="Why Greedy Works Here">
+      **Greedy Choice Property:**
+      
+      For standard coin systems (like US coins: 1, 5, 10, 25), taking the largest coin first always leads to the optimal solution.
+      
+      **Example: Value = 41**
+      ```
+      Greedy approach:
+      - 1 × 25 = 25, remaining = 16
+      - 1 × 10 = 10, remaining = 6
+      - 1 × 5 = 5, remaining = 1
+      - 1 × 1 = 1, remaining = 0
+      Total: 4 coins ✓
+      
+      Alternative:
+      - 4 × 10 = 40, remaining = 1
+      - 1 × 1 = 1
+      Total: 5 coins (worse)
+      ```
+      
+      **Why it works:** Each larger denomination is a multiple or strategic value relative to smaller ones.
+    </Tab>
+    
+    <Tab title="When Greedy Fails">
+      **Counter-example: coins = [1, 3, 4], value = 6**
+      
+      ```typescript
+      Greedy approach:
+      - 1 × 4 = 4, remaining = 2
+      - 2 × 1 = 2, remaining = 0
+      Total: 3 coins
+      
+      Optimal approach:
+      - 2 × 3 = 6, remaining = 0
+      Total: 2 coins ✓
+      ```
+      
+      **Solution for arbitrary coins:** Use **Dynamic Programming** instead!
+      
+      ```typescript
+      function minCoinsDP(coins: number[], value: number): number {
+        const dp = Array(value + 1).fill(Infinity);
+        dp[0] = 0;
+        
+        for (let i = 1; i <= value; i++) {
+          for (const coin of coins) {
+            if (coin <= i) {
+              dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+            }
+          }
+        }
+        
+        return dp[value];
+      }
+      ```
+      
+      **Time:** O(value × coins), **Space:** O(value)
+    </Tab>
+    
+    <Tab title="Real-World Applications">
+      **Where greedy coin change is used:**
+      
+      1. **Cash registers:** Making change with real currency
+      2. **Vending machines:** Dispensing coins
+      3. **Currency exchange:** Converting between denominations
+      
+      **Other greedy problems:**
+      
+      1. **Activity Selection:** Choose maximum non-overlapping activities
+      2. **Fractional Knapsack:** Take items by value/weight ratio
+      3. **Huffman Coding:** Build optimal prefix codes
+      4. **Job Scheduling:** Maximize profit with deadlines
+      5. **Graph MST:** Prim's and Kruskal's algorithms
+    </Tab>
+  </Tabs>
+  
+  **Source:** `/workspace/source/algorithms/design-techniques/greedy/greedy.problems.test.ts:2-28`
+</Accordion>
+
+<Warning>
+  **Greedy Algorithm Pitfall:** Always verify that the greedy choice property holds for your specific problem! Many problems seem like they'd work with greedy but actually require dynamic programming for the optimal solution.
+</Warning>
+
+---
+
+## Backtracking (1 Problem)
+
+Backtracking explores solution spaces by trying different paths and abandoning paths that don't lead to valid solutions. It's a refined brute force with pruning.
+
+<Accordion title="Characteristics of Backtracking Problems">
+  **When to use Backtracking:**
+  
+  - Need to explore all possible solutions
+  - Can eliminate invalid paths early (pruning)
+  - Problem involves making a sequence of choices
+  - Constraints can be checked incrementally
+  
+  **Three key components:**
+  
+  1. **Choice:** What decision to make at this step
+  2. **Constraint:** Rules that determine if current path is valid
+  3. **Goal:** Condition that defines a complete solution
+  
+  **Common patterns:**
+  - Recursion with state
+  - Try a choice
+  - Check if it's valid
+  - If not, undo (backtrack) and try another choice
+  
+  **Classic examples:** N-Queens, Sudoku solver, maze solving, subset sum, permutations, combinations
+</Accordion>
+
+<Accordion title="Problem 1: Rat in a Maze" icon="map">
+  **Difficulty:** Medium
+  
+  **Problem Statement:**
+  A maze is represented as an n×n binary matrix where 0 is a dead end and 1 is a valid path. A rat starts at the top-left corner [0,0] and must reach the bottom-right corner [n-1,n-1]. The rat can only move forward (right) or down.
+  
+  **Example:**
+  ```typescript
+  Input:
+  [1, 0, 0, 0]
+  [1, 1, 1, 1]
+  [0, 0, 1, 0]
+  [0, 1, 1, 1]
+  
+  Output (path marked with 1):
+  [1, 0, 0, 0]
+  [1, 1, 1, 0]
+  [0, 0, 1, 0]
+  [0, 0, 1, 1]
+  
+  Path: (0,0) → (1,0) → (1,1) → (1,2) → (2,2) → (3,2) → (3,3)
+  ```
+  
+  <Tabs>
+    <Tab title="Solution: Backtracking">
+      **Approach:** Try moving right or down. If a path fails, backtrack and try the other direction.
+      
+      **Time Complexity:** O(2^(n²)) in worst case (trying all paths)
+      
+      **Space Complexity:** O(n²) for solution matrix + O(n²) for recursion stack
+      
+      **Algorithm:**
+      1. Start at (0, 0)
+      2. Mark current cell as part of solution
+      3. Try moving right: if it leads to solution, return true
+      4. Try moving down: if it leads to solution, return true
+      5. If neither works, unmark cell (backtrack) and return false
+      
+      **Implementation:**
+      ```typescript
+      const maze = [
+        [1, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 1, 0],
+        [0, 1, 1, 1],
+      ];
+      
+      const n = maze.length;
+      const solution = [];
+      
+      // Initialize solution matrix
+      for (let i = 0; i < n; i++) {
+        solution[i] = Array.from({ length: n }, () => 0);
+      }
+      
+      function solveMaze(
+        maze: number[][],
+        solution: number[][],
+        i: number,
+        j: number
+      ): boolean {
+        const n = maze.length;
+        
+        // Out of bounds
+        if (i > n - 1 || j > n - 1) {
+          return false;
+        }
+        
+        // Reached destination
+        if (i === n - 1 && j === n - 1) {
+          solution[i][j] = 1;
+          return true;
+        }
+        
+        // Current cell is valid path
+        if (maze[i][j] !== 0) {
+          solution[i][j] = 1;
+          
+          // Try moving right
+          if (solveMaze(maze, solution, i, j + 1)) {
+            return true;
+          }
+          
+          // Try moving down
+          if (solveMaze(maze, solution, i + 1, j)) {
+            return true;
+          }
+          
+          // Backtrack: neither direction worked
+          solution[i][j] = 0;
+        }
+        
+        return false;
+      }
+      
+      solveMaze(maze, solution, 0, 0);
+      ```
+    </Tab>
+    
+    <Tab title="Backtracking Visualization">
+      **Step-by-step path exploration:**
+      
+      ```
+      Step 1: Start at (0,0)
+      [1, -, -, -]    Mark (0,0)
+      [-, -, -, -]
+      [-, -, -, -]
+      [-, -, -, -]
+      
+      Step 2: Try right (0,1) - BLOCKED!
+      Can't move right, try down
+      
+      Step 3: Move down to (1,0)
+      [1, -, -, -]
+      [1, -, -, -]    Mark (1,0)
+      [-, -, -, -]
+      [-, -, -, -]
+      
+      Step 4: Try right (1,1) - SUCCESS!
+      [1, -, -, -]
+      [1, 1, -, -]    Mark (1,1)
+      [-, -, -, -]
+      [-, -, -, -]
+      
+      ... continue until reaching (3,3)
+      
+      Final path:
+      [1, 0, 0, 0]
+      [1, 1, 1, 0]
+      [0, 0, 1, 0]
+      [0, 0, 1, 1]
+      ```
+      
+      **Backtracking occurs when:**
+      - Hit a wall (0 in maze)
+      - Go out of bounds
+      - Reach a dead end with no valid moves
+      
+      When backtracking, we unmark the cell (set to 0) and try a different path.
+    </Tab>
+    
+    <Tab title="Extensions & Variations">
+      **4-Direction Movement:**
+      ```typescript
+      // Allow up, down, left, right
+      const moves = [
+        [0, 1],   // right
+        [1, 0],   // down
+        [0, -1],  // left
+        [-1, 0],  // up
+      ];
+      
+      function solveMaze4D(maze, solution, i, j, visited) {
+        // ... boundary and destination checks ...
+        
+        visited[i][j] = true;
+        solution[i][j] = 1;
+        
+        for (const [di, dj] of moves) {
+          const ni = i + di;
+          const nj = j + dj;
+          
+          if (isValid(ni, nj) && !visited[ni][nj]) {
+            if (solveMaze4D(maze, solution, ni, nj, visited)) {
+              return true;
+            }
+          }
+        }
+        
+        // Backtrack
+        solution[i][j] = 0;
+        return false;
+      }
+      ```
+      
+      **Find All Paths:**
+      ```typescript
+      function findAllPaths(maze, path, i, j, allPaths) {
+        // Don't return on first solution
+        // Instead, collect all valid paths
+        if (i === n-1 && j === n-1) {
+          allPaths.push([...path, [i, j]]);
+          return;
+        }
+        
+        // Try all valid moves
+        // Continue exploring even after finding a path
+      }
+      ```
+      
+      **Other Backtracking Problems:**
+      1. **N-Queens:** Place N queens on N×N board with no attacks
+      2. **Sudoku Solver:** Fill 9×9 grid with constraints
+      3. **Knight's Tour:** Visit every square on chessboard
+      4. **Subset Sum:** Find subsets that sum to target
+      5. **Word Search:** Find word in 2D character grid
+    </Tab>
+  </Tabs>
+  
+  **Source:** `/workspace/source/algorithms/design-techniques/backtracking/backtracking.problems.test.ts:2-63`
+</Accordion>
+
+<Info>
+  **Backtracking vs Brute Force:** Backtracking is more efficient than pure brute force because it prunes the search space early. As soon as we detect a path violates constraints, we stop exploring that branch.
+</Info>
+
+---
+
+## Technique Comparison
+
+<Tabs>
+  <Tab title="Quick Comparison">
+    | Technique | Subproblems | When to Use | Time Complexity | Examples |
+    |-----------|-------------|-------------|-----------------|----------|
+    | **Dynamic Programming** | Overlapping | Optimization with overlapping subproblems | O(n²) to O(n³) typically | LCS, Knapsack, Edit Distance |
+    | **Divide & Conquer** | Independent | Can split into non-overlapping parts | O(n log n) often | Merge Sort, Binary Search, Max Subarray |
+    | **Greedy** | None (single pass) | Local optimum = global optimum | O(n) to O(n log n) | Activity Selection, Huffman, Coin Change* |
+    | **Backtracking** | Explored via search tree | Need all solutions or constraint satisfaction | Exponential (with pruning) | N-Queens, Sudoku, Maze |
+    
+    *Coin change with greedy only works for certain coin systems
+  </Tab>
+  
+  <Tab title="Decision Tree">
+    **How to choose the right technique:**
+    
+    ```
+    Start: Analyze your problem
+    |
+    ├─ Need all possible solutions?
+    │  └─ YES → Backtracking
+    │
+    ├─ Can problem be split into independent parts?
+    │  └─ YES → Divide & Conquer
+    │
+    ├─ Do subproblems overlap?
+    │  ├─ YES → Dynamic Programming
+    │  └─ NO → Check next
+    │
+    └─ Does greedy choice property hold?
+       ├─ YES → Greedy Algorithm
+       └─ NO → Dynamic Programming or Backtracking
+    ```
+  </Tab>
+  
+  <Tab title="Complexity Patterns">
+    **Typical complexity patterns:**
+    
+    **Dynamic Programming:**
+    - 1D DP: O(n) time, O(n) space
+    - 2D DP: O(n²) time, O(n²) space
+    - Often can optimize space to O(n)
+    
+    **Divide & Conquer:**
+    - Binary division: O(n log n)
+    - Master theorem applicable
+    - Space: O(log n) for recursion
+    
+    **Greedy:**
+    - Usually O(n) or O(n log n)
+    - Space: O(1) often possible
+    - Fast but doesn't always work
+    
+    **Backtracking:**
+    - Worst case: O(b^d) where b is branching factor, d is depth
+    - With pruning: much better in practice
+    - Space: O(d) for recursion depth
+  </Tab>
+</Tabs>
+
+---
+
+## Learning Path
+
+<Steps>
+  <Step title="Start with Greedy">
+    Easiest to understand. Practice recognizing when greedy works vs when it doesn't.
+  </Step>
+  
+  <Step title="Learn Divide & Conquer">
+    Study merge sort and binary search thoroughly. Understand the three-step process.
+  </Step>
+  
+  <Step title="Master Dynamic Programming">
+    Start with Fibonacci and climbing stairs. Progress to LCS and knapsack problems.
+  </Step>
+  
+  <Step title="Practice Backtracking">
+    Begin with simple maze problems. Advance to N-Queens and Sudoku solvers.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="View by Data Structure" icon="database" href="/problems/by-data-structure">
+    Explore problems organized by data structure implementation
+  </Card>
+  <Card title="Overview" icon="home" href="/problems/overview">
+    Return to the problems overview page
+  </Card>
+</CardGroup>

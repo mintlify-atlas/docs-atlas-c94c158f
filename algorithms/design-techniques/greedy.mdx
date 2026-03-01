@@ -1,0 +1,476 @@
+---
+title: 'Greedy Algorithms'
+description: 'Learn the greedy technique for solving optimization problems by making locally optimal choices'
+---
+
+## Overview
+
+Greedy algorithms solve optimization problems by making the **locally optimal choice** at each step with the hope of finding a global optimum. The key principle is: make the best decision you can right now, without worrying about future consequences.
+
+<Note>
+Greedy algorithms don't always produce optimal solutions, but when they do, they're often the most efficient approach.
+</Note>
+
+## Core Principle
+
+At each decision point, a greedy algorithm:
+1. Makes the choice that looks best at the moment
+2. Never reconsiders that choice
+3. Hopes that these local choices lead to a global optimum
+
+```typescript
+function greedyApproach(problem) {
+  let solution = [];
+  
+  while (!problem.isSolved()) {
+    // Make the best choice right now
+    const bestChoice = findLocalOptimum(problem);
+    solution.push(bestChoice);
+    problem.update(bestChoice);
+  }
+  
+  return solution;
+}
+```
+
+## Problem: Minimum Coin Change
+
+<AccordionGroup>
+  <Accordion title="Problem Description">
+    Given a value `v`, if we want to make change for `v` using an infinite supply of coins with denominations `[c1, c2, c3, ..., cn]`, what is the minimum number of coins needed? If it's not possible to make change, return -1.
+    
+    **Example:**
+    ```
+    Value: 186
+    Coins: [1, 5, 10, 25]
+    Output: 9 coins
+    Solution: 7×25 + 1×10 + 1×1 = 175 + 10 + 1 = 186
+    ```
+  </Accordion>
+
+  <Accordion title="Greedy Strategy">
+    The greedy approach for coin change:
+    1. Sort coins in descending order
+    2. Use as many of the largest coin as possible
+    3. Move to the next smaller coin
+    4. Repeat until we make exact change
+    
+    <Warning>
+    This greedy approach only works for certain coin systems (like US coins). For arbitrary coin denominations, use dynamic programming instead.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Implementation">
+    ```typescript
+    function minCoinChange(value: number, coins: number[]): {
+      count: number;
+      breakdown: Record<number, number>;
+    } {
+      const result: Record<number, number> = {};
+      let amount = value;
+      let count = 0;
+      
+      // Start with largest coin
+      for (let i = coins.length - 1; i >= 0; i--) {
+        if (coins[i] <= amount) {
+          // Use as many of this coin as possible
+          const coinCount = Math.floor(amount / coins[i]);
+          
+          result[coins[i]] = result[coins[i]]
+            ? result[coins[i]] + coinCount
+            : coinCount;
+          
+          count += coinCount;
+          amount = amount % coins[i];
+        }
+      }
+      
+      // Check if we made exact change
+      if (amount !== 0) {
+        return { count: -1, breakdown: {} };
+      }
+      
+      return { count, breakdown: result };
+    }
+    
+    // Usage
+    const value = 186;
+    const coins = [1, 5, 10, 25];
+    const result = minCoinChange(value, coins);
+    
+    console.log(`Minimum coins: ${result.count}`);
+    // Output: Minimum coins: 9
+    
+    console.log('Breakdown:', result.breakdown);
+    // Output: Breakdown: { '1': 1, '10': 1, '25': 7 }
+    ```
+  </Accordion>
+
+  <Accordion title="Step-by-Step Walkthrough">
+    For value = 186 and coins = [1, 5, 10, 25]:
+    
+    ```
+    Step 1: Use 25 cent coins
+      186 ÷ 25 = 7 remainder 11
+      Use 7 quarters, remaining: 11
+    
+    Step 2: Use 10 cent coins
+      11 ÷ 10 = 1 remainder 1
+      Use 1 dime, remaining: 1
+    
+    Step 3: Use 5 cent coins
+      1 ÷ 5 = 0 remainder 1
+      Use 0 nickels, remaining: 1
+    
+    Step 4: Use 1 cent coins
+      1 ÷ 1 = 1 remainder 0
+      Use 1 penny, remaining: 0
+    
+    Total: 7 + 1 + 0 + 1 = 9 coins
+    ```
+  </Accordion>
+
+  <Accordion title="Complexity Analysis">
+    - **Time Complexity**: O(n)
+      - Where n is the number of coin denominations
+      - We iterate through each coin type once
+    
+    - **Space Complexity**: O(n)
+      - To store the breakdown of coins used
+  </Accordion>
+
+  <Accordion title="When Greedy Fails">
+    Greedy doesn't always give optimal results. Consider:
+    
+    ```typescript
+    // Coins: [1, 3, 4]
+    // Value: 6
+    
+    // Greedy approach:
+    // 4 + 1 + 1 = 6 (3 coins)
+    
+    // Optimal solution:
+    // 3 + 3 = 6 (2 coins)
+    ```
+    
+    For arbitrary coin systems, use **dynamic programming** instead.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use Greedy Algorithms
+
+<CardGroup cols={2}>
+  <Card title="Use When" icon="check">
+    - Problem has greedy choice property
+    - Optimal substructure exists
+    - Local optimum leads to global optimum
+    - Proof of correctness is available
+    - Need fast, simple solution
+  </Card>
+  
+  <Card title="Avoid When" icon="xmark">
+    - Local choices don't guarantee global optimum
+    - Need to explore all possibilities
+    - Problem requires backtracking
+    - Counterexamples to greedy exist
+    - DP is more appropriate
+  </Card>
+</CardGroup>
+
+## Greedy Choice Property
+
+A problem has the **greedy choice property** if:
+
+<Steps>
+  <Step title="Local Optimum">
+    Making the locally optimal choice at each step
+  </Step>
+  
+  <Step title="No Reconsideration">
+    Never needing to reconsider previous choices
+  </Step>
+  
+  <Step title="Global Optimum">
+    These local choices lead to a globally optimal solution
+  </Step>
+</Steps>
+
+## Classic Greedy Algorithm Examples
+
+<AccordionGroup>
+  <Accordion title="Activity Selection">
+    **Problem**: Select maximum number of non-overlapping activities.
+    
+    **Greedy Strategy**: Always pick the activity that finishes earliest.
+    
+    ```typescript
+    function activitySelection(activities: Array<[number, number]>) {
+      // Sort by finish time
+      activities.sort((a, b) => a[1] - b[1]);
+      
+      const selected = [activities[0]];
+      let lastFinish = activities[0][1];
+      
+      for (let i = 1; i < activities.length; i++) {
+        if (activities[i][0] >= lastFinish) {
+          selected.push(activities[i]);
+          lastFinish = activities[i][1];
+        }
+      }
+      
+      return selected;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Huffman Coding">
+    **Problem**: Create optimal prefix-free binary codes for data compression.
+    
+    **Greedy Strategy**: Always combine the two nodes with smallest frequencies.
+    
+    ```typescript
+    class HuffmanNode {
+      constructor(
+        public freq: number,
+        public char?: string,
+        public left?: HuffmanNode,
+        public right?: HuffmanNode
+      ) {}
+    }
+    
+    function huffmanCoding(frequencies: Map<string, number>) {
+      const heap = new MinHeap<HuffmanNode>(
+        (a, b) => a.freq - b.freq
+      );
+      
+      // Add all characters to heap
+      for (const [char, freq] of frequencies) {
+        heap.insert(new HuffmanNode(freq, char));
+      }
+      
+      // Build tree
+      while (heap.size() > 1) {
+        const left = heap.extractMin();
+        const right = heap.extractMin();
+        const parent = new HuffmanNode(
+          left.freq + right.freq,
+          undefined,
+          left,
+          right
+        );
+        heap.insert(parent);
+      }
+      
+      return heap.extractMin();
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Dijkstra's Shortest Path">
+    **Problem**: Find shortest path from source to all vertices.
+    
+    **Greedy Strategy**: Always expand the vertex with smallest distance from source.
+    
+    ```typescript
+    function dijkstra(graph: number[][], source: number) {
+      const n = graph.length;
+      const dist = new Array(n).fill(Infinity);
+      const visited = new Array(n).fill(false);
+      
+      dist[source] = 0;
+      
+      for (let i = 0; i < n - 1; i++) {
+        // Find vertex with minimum distance
+        let u = -1;
+        for (let v = 0; v < n; v++) {
+          if (!visited[v] && (u === -1 || dist[v] < dist[u])) {
+            u = v;
+          }
+        }
+        
+        visited[u] = true;
+        
+        // Update distances
+        for (let v = 0; v < n; v++) {
+          if (graph[u][v] && !visited[v]) {
+            dist[v] = Math.min(
+              dist[v],
+              dist[u] + graph[u][v]
+            );
+          }
+        }
+      }
+      
+      return dist;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Fractional Knapsack">
+    **Problem**: Maximize value in knapsack when items can be divided.
+    
+    **Greedy Strategy**: Sort by value-to-weight ratio, take highest ratio first.
+    
+    ```typescript
+    interface Item {
+      value: number;
+      weight: number;
+    }
+    
+    function fractionalKnapsack(
+      items: Item[],
+      capacity: number
+    ): number {
+      // Sort by value/weight ratio (descending)
+      items.sort((a, b) => 
+        (b.value / b.weight) - (a.value / a.weight)
+      );
+      
+      let totalValue = 0;
+      let remainingCapacity = capacity;
+      
+      for (const item of items) {
+        if (remainingCapacity >= item.weight) {
+          // Take whole item
+          totalValue += item.value;
+          remainingCapacity -= item.weight;
+        } else {
+          // Take fraction of item
+          totalValue += 
+            (item.value / item.weight) * remainingCapacity;
+          break;
+        }
+      }
+      
+      return totalValue;
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Proving Greedy Correctness
+
+To prove a greedy algorithm is correct, typically use one of:
+
+<Tabs>
+  <Tab title="Greedy Stays Ahead">
+    Show that after each step, the greedy solution is at least as good as any other solution.
+    
+    ```
+    Prove: greedy_solution[i] ≥ optimal_solution[i]
+    for all steps i
+    ```
+  </Tab>
+  
+  <Tab title="Exchange Argument">
+    Show that any optimal solution can be transformed into the greedy solution without making it worse.
+    
+    ```
+    1. Start with any optimal solution
+    2. Exchange one element with greedy choice
+    3. Show the solution is still optimal
+    4. Repeat until solution matches greedy
+    ```
+  </Tab>
+</Tabs>
+
+## Greedy vs Dynamic Programming
+
+| Aspect | Greedy | Dynamic Programming |
+|--------|--------|--------------------|
+| Choice | Make local optimum choice | Consider all choices |
+| Subproblems | Independent | Overlapping |
+| Backtracking | Never | Sometimes needed |
+| Correctness | Not always optimal | Always optimal (if applicable) |
+| Efficiency | Usually faster | More computation |
+| Examples | Huffman coding, Dijkstra | Knapsack, LCS |
+
+<Tip>
+**Quick Test**: If you can find a counterexample where greedy fails, you need dynamic programming instead.
+</Tip>
+
+## Common Greedy Patterns
+
+<CardGroup cols={2}>
+  <Card title="Sorting-Based" icon="arrow-down-1-9">
+    Sort items by some criterion, then process in order
+    
+    Examples: Activity selection, Fractional knapsack
+  </Card>
+  
+  <Card title="Priority Queue" icon="layer-group">
+    Always process the "best" element next
+    
+    Examples: Dijkstra, Huffman coding, Prim's MST
+  </Card>
+  
+  <Card title="Earliest Deadline First" icon="clock">
+    Process items with earliest deadlines first
+    
+    Examples: Job scheduling, Meeting rooms
+  </Card>
+  
+  <Card title="Largest/Smallest First" icon="arrow-up-9-1">
+    Process extremes first
+    
+    Examples: Minimize waiting time, Load balancing
+  </Card>
+</CardGroup>
+
+## Tips and Best Practices
+
+<Tip>
+**Verify Correctness**: Always check if greedy actually produces optimal results. Try to find counterexamples.
+</Tip>
+
+<Tip>
+**Sort First**: Many greedy algorithms start by sorting the input by some criterion.
+</Tip>
+
+<Tip>
+**Use Priority Queue**: When you need to repeatedly pick the "best" element, use a heap/priority queue.
+</Tip>
+
+<Tip>
+**Prove or Test**: Either prove the greedy choice property holds, or extensively test your solution.
+</Tip>
+
+<Warning>
+Just because a greedy approach is simple doesn't mean it's correct. Always validate with edge cases and counterexamples.
+</Warning>
+
+## Debugging Greedy Algorithms
+
+<Steps>
+  <Step title="Check Greedy Choice">
+    Is your greedy criterion actually optimal? Try small examples.
+  </Step>
+  
+  <Step title="Test Edge Cases">
+    Empty input, single element, all same values, extreme values
+  </Step>
+  
+  <Step title="Compare with Brute Force">
+    For small inputs, compare greedy result with exhaustive search
+  </Step>
+  
+  <Step title="Look for Counterexamples">
+    Can you find any case where greedy doesn't give the optimal answer?
+  </Step>
+</Steps>
+
+## Related Topics
+
+<CardGroup cols={3}>
+  <Card title="Dynamic Programming" icon="table-cells" href="/algorithms/design-techniques/dynamic-programming">
+    When greedy doesn't work
+  </Card>
+  
+  <Card title="Divide and Conquer" icon="scissors" href="/algorithms/design-techniques/divide-and-conquer">
+    For recursive subproblems
+  </Card>
+  
+  <Card title="Backtracking" icon="rotate-left" href="/algorithms/design-techniques/backtracking">
+    When you need to explore all options
+  </Card>
+</CardGroup>

@@ -1,0 +1,410 @@
+---
+title: 'Tree'
+description: 'General tree implementation with multiple children per node'
+icon: 'tree'
+---
+
+# Tree
+
+A hierarchical data structure consisting of nodes where each node can have multiple children. Unlike binary trees, nodes are not limited to two children.
+
+## Overview
+
+General trees represent hierarchical relationships where each node can have any number of children. This structure is fundamental for representing file systems, organizational charts, and nested data.
+
+## Implementation
+
+### Node Structure
+
+```typescript
+class Node<T = number> {
+  value: T;
+  children: Node<T>[] = [];
+
+  constructor(value: T) {
+    this.value = value;
+  }
+}
+```
+
+**Reference**: [node.ts:1-9](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/tree/node.ts)
+
+### Class Definition
+
+```typescript
+class Tree<T> {
+  root: Node<T> | null = null;
+
+  constructor(root: T) {
+    this.root = new Node(root);
+  }
+  
+  // ... methods
+}
+```
+
+**Reference**: [tree.ts:3-8](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/tree/tree.ts)
+
+## API Reference
+
+### insert(parent: T, node: T): boolean
+
+Inserts a new node as a child of the specified parent node.
+
+```typescript
+const tree = new Tree<number>(1);
+tree.insert(1, 2); // Add 2 as child of 1
+tree.insert(1, 3); // Add 3 as child of 1
+tree.insert(2, 4); // Add 4 as child of 2
+
+// Tree structure:
+//       1
+//      / \
+//     2   3
+//    /
+//   4
+```
+
+**Parameters**:
+- `parent`: Value of the parent node
+- `node`: Value to insert as a new child
+
+**Returns**: `true` if insertion succeeded, `false` if parent not found
+
+**Complexity**: O(n) - must search for parent node
+
+**Reference**: [tree.ts:23-38](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/tree/tree.ts)
+
+---
+
+### search(value: T): Node&lt;T&gt; | undefined
+
+Searches for a node with the specified value.
+
+```typescript
+const tree = new Tree<number>(1);
+tree.insert(1, 2);
+tree.insert(1, 3);
+
+const node = tree.search(2);
+console.log(node?.value); // 2
+console.log(node?.children); // []
+```
+
+**Parameters**:
+- `value`: The value to search for
+
+**Returns**: The node if found, `undefined` otherwise
+
+**Complexity**: O(n) - may need to traverse entire tree
+
+**Reference**: [tree.ts:40-50](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/tree/tree.ts)
+
+## Internal Methods
+
+### #traverse(node, callback)
+
+Private method for tree traversal using depth-first search.
+
+```typescript
+#traverse(node: Node<T> | null, callback: (node: Node<T>) => void) {
+  if (!node) {
+    return;
+  }
+
+  callback(node);
+
+  for (const child of node.children) {
+    callback(child);
+    this.#traverse(child, callback);
+  }
+}
+```
+
+**Traversal Order**: Pre-order (parent, then children)
+
+**Reference**: [tree.ts:10-21](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/trees/tree/tree.ts)
+
+## Usage Examples
+
+### Building a File System
+
+```typescript
+class FileSystem {
+  private tree: Tree<string>;
+  
+  constructor(rootDir: string) {
+    this.tree = new Tree(rootDir);
+  }
+  
+  createDirectory(parent: string, dirName: string) {
+    return this.tree.insert(parent, dirName);
+  }
+  
+  findDirectory(dirName: string) {
+    return this.tree.search(dirName);
+  }
+}
+
+const fs = new FileSystem('/');
+fs.createDirectory('/', 'home');
+fs.createDirectory('/', 'etc');
+fs.createDirectory('/home', 'user');
+fs.createDirectory('/home/user', 'documents');
+
+// File system structure:
+//        /
+//       / \
+//    home  etc
+//     |
+//    user
+//     |
+// documents
+```
+
+### Organization Chart
+
+```typescript
+interface Employee {
+  id: number;
+  name: string;
+  role: string;
+}
+
+const orgChart = new Tree<Employee>({
+  id: 1,
+  name: 'CEO',
+  role: 'Chief Executive'
+});
+
+orgChart.insert(
+  { id: 1, name: 'CEO', role: 'Chief Executive' },
+  { id: 2, name: 'CTO', role: 'Technology' }
+);
+
+orgChart.insert(
+  { id: 1, name: 'CEO', role: 'Chief Executive' },
+  { id: 3, name: 'CFO', role: 'Finance' }
+);
+```
+
+### Menu Navigation
+
+```typescript
+interface MenuItem {
+  id: string;
+  label: string;
+  url?: string;
+}
+
+const menu = new Tree<MenuItem>({
+  id: 'root',
+  label: 'Main Menu'
+});
+
+menu.insert(
+  { id: 'root', label: 'Main Menu' },
+  { id: 'products', label: 'Products' }
+);
+
+menu.insert(
+  { id: 'products', label: 'Products' },
+  { id: 'laptops', label: 'Laptops', url: '/products/laptops' }
+);
+
+menu.insert(
+  { id: 'products', label: 'Products' },
+  { id: 'phones', label: 'Phones', url: '/products/phones' }
+);
+```
+
+## Traversal Patterns
+
+### Depth-First Search (DFS)
+
+The implementation uses DFS for traversal:
+
+```typescript
+function printTree<T>(tree: Tree<T>) {
+  const values: T[] = [];
+  
+  tree.#traverse(tree.root, (node) => {
+    values.push(node.value);
+  });
+  
+  console.log(values);
+}
+```
+
+### Custom Traversal
+
+```typescript
+// Count total nodes
+function countNodes<T>(tree: Tree<T>): number {
+  let count = 0;
+  
+  tree.#traverse(tree.root, () => {
+    count++;
+  });
+  
+  return count;
+}
+
+// Find maximum depth
+function maxDepth<T>(node: Node<T> | null): number {
+  if (!node || node.children.length === 0) {
+    return 0;
+  }
+  
+  let max = 0;
+  for (const child of node.children) {
+    max = Math.max(max, maxDepth(child));
+  }
+  
+  return max + 1;
+}
+```
+
+## Complexity Summary
+
+| Operation | Time Complexity | Space Complexity |
+|-----------|----------------|------------------|
+| insert | O(n) | O(1) |
+| search | O(n) | O(h)* |
+| traverse | O(n) | O(h)* |
+
+<Info>
+*h = height of tree (due to recursion call stack)
+</Info>
+
+## Tree vs Other Structures
+
+| Feature | General Tree | Binary Tree | N-ary Tree |
+|---------|-------------|-------------|------------|
+| Children per node | Unlimited | Max 2 | Max N |
+| Storage | Dynamic array | Two pointers | Fixed array |
+| Use case | Hierarchies | Search trees | Tries, B-trees |
+| Memory | Variable | Fixed | Fixed |
+
+## Key Characteristics
+
+<Check>
+**Advantages:**
+- Natural representation of hierarchies
+- Flexible number of children
+- Intuitive for nested data
+- Easy to implement recursive algorithms
+</Check>
+
+<Warning>
+**Limitations:**
+- No guaranteed balance
+- O(n) search time
+- Not optimized for searching
+- Memory overhead for children array
+</Warning>
+
+## Common Operations
+
+### Finding Leaf Nodes
+
+```typescript
+function findLeaves<T>(tree: Tree<T>): Node<T>[] {
+  const leaves: Node<T>[] = [];
+  
+  function traverse(node: Node<T> | null) {
+    if (!node) return;
+    
+    if (node.children.length === 0) {
+      leaves.push(node);
+    }
+    
+    for (const child of node.children) {
+      traverse(child);
+    }
+  }
+  
+  traverse(tree.root);
+  return leaves;
+}
+```
+
+### Finding Height
+
+```typescript
+function height<T>(node: Node<T> | null): number {
+  if (!node) return -1;
+  
+  let maxChildHeight = -1;
+  for (const child of node.children) {
+    maxChildHeight = Math.max(maxChildHeight, height(child));
+  }
+  
+  return maxChildHeight + 1;
+}
+```
+
+### Level-Order Traversal
+
+```typescript
+function levelOrder<T>(tree: Tree<T>): T[][] {
+  if (!tree.root) return [];
+  
+  const result: T[][] = [];
+  const queue: Node<T>[] = [tree.root];
+  
+  while (queue.length > 0) {
+    const levelSize = queue.length;
+    const currentLevel: T[] = [];
+    
+    for (let i = 0; i < levelSize; i++) {
+      const node = queue.shift()!;
+      currentLevel.push(node.value);
+      queue.push(...node.children);
+    }
+    
+    result.push(currentLevel);
+  }
+  
+  return result;
+}
+```
+
+## When to Use a General Tree
+
+<AccordionGroup>
+  <Accordion title="File Systems">
+    Directories can contain multiple files and subdirectories.
+  </Accordion>
+  
+  <Accordion title="DOM Representation">
+    HTML elements can have any number of child elements.
+  </Accordion>
+  
+  <Accordion title="Organization Charts">
+    Employees can manage multiple direct reports.
+  </Accordion>
+  
+  <Accordion title="Abstract Syntax Trees">
+    Code expressions can have varying numbers of operands.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+For optimized searching, consider using specialized tree structures:
+- [Binary Search Tree](/data-structures/binary-search-tree) for ordered data
+- [AVL Tree](/data-structures/avl-tree) for guaranteed balance
+- [B-Tree](https://en.wikipedia.org/wiki/B-tree) for database indexes
+</Tip>
+
+## Related Data Structures
+
+<CardGroup cols={2}>
+  <Card title="Binary Search Tree" icon="code-branch" href="/data-structures/binary-search-tree">
+    Optimized tree for searching
+  </Card>
+  
+  <Card title="Graph" icon="project-diagram" href="/data-structures/graph">
+    Generalization allowing cycles
+  </Card>
+</CardGroup>

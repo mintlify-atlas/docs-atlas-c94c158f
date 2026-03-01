@@ -1,0 +1,273 @@
+---
+title: 'Array'
+description: 'Array manipulation patterns and problem-solving techniques'
+icon: 'table'
+---
+
+# Array
+
+Arrays are the most fundamental data structure, providing contiguous memory storage for elements of the same type. This page covers common array patterns and problems.
+
+## Overview
+
+Arrays provide O(1) random access but O(n) insertion and deletion for arbitrary positions. TypeScript's built-in array type is used with various algorithms and patterns.
+
+## Common Patterns
+
+### Two Pointer Technique
+Used for merging sorted arrays, finding pairs, or partitioning.
+
+### In-Place Operations
+Modifying arrays without extra space for O(1) space complexity.
+
+### Matrix Operations
+Working with 2D arrays for grid-based problems.
+
+## Problems & Solutions
+
+### Problem 1: Rotate Matrix 90 Degrees
+
+Rotate an n×n matrix 90 degrees clockwise.
+
+<CodeGroup>
+```typescript Solution 1 (Extra Space)
+/**
+ * Time complexity: O(n²)
+ * Space complexity: O(n²)
+ */
+function rotateMatrix(matrix: number[][]) {
+  const n = matrix.length;
+  const result: number[][] = [];
+
+  for (let i = 0; i < n; i++) {
+    for (let j = n - 1; j >= 0; j--) {
+      if (!result[i]) {
+        result[i] = [matrix[j][i]];
+      } else {
+        result[i].push(matrix[j][i]);
+      }
+    }
+  }
+
+  return result;
+}
+```
+
+```typescript Solution 2 (In-Place)
+/**
+ * Time complexity: O(n²)
+ * Space complexity: O(1)
+ */
+function rotateMatrixInPlace(matrix: number[][]) {
+  const n = matrix.length;
+
+  for (let layer = 0; layer < n / 2; layer++) {
+    const first = layer;
+    const last = n - 1 - layer;
+
+    for (let i = first; i < last; i++) {
+      const offset = i - first;
+
+      // Save top
+      const top = matrix[first][i];
+
+      // left → top
+      matrix[first][i] = matrix[last - offset][first];
+
+      // bottom → left
+      matrix[last - offset][first] = matrix[last][last - offset];
+
+      // right → bottom
+      matrix[last][last - offset] = matrix[i][last];
+
+      // top → right
+      matrix[i][last] = top;
+    }
+  }
+
+  return matrix;
+}
+```
+</CodeGroup>
+
+**Reference**: [array.problems.test.ts:6-76](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/array/array.problems.test.ts)
+
+---
+
+### Problem 2: Next Greater Element
+
+Find the next greater element for each element in an array.
+
+```typescript
+/**
+ * Time complexity: O(n)
+ * Space complexity: O(n)
+ */
+import { Stack } from '../stack/stack';
+
+function nextGreaterElement(arr: number[]) {
+  const stack = new Stack();
+  const result = [];
+
+  stack.push(arr[0]);
+
+  for (let i = 1; i < arr.length; i++) {
+    while (!stack.isEmpty() && stack.peek()! < arr[i]) {
+      result.push([stack.pop(), arr[i]]);
+    }
+    stack.push(arr[i]);
+  }
+
+  while (!stack.isEmpty()) {
+    result.push([stack.pop(), -1]);
+  }
+
+  return result;
+}
+
+// Example: [4, 5, 2, 25]
+// Output: [[4, 5], [2, 25], [5, 25], [25, -1]]
+```
+
+**Reference**: [array.problems.test.ts:78-108](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/array/array.problems.test.ts)
+
+---
+
+### Problem 3: Merge Sorted Arrays
+
+Merge two sorted arrays in-place.
+
+```typescript
+/**
+ * Time complexity: O(n)
+ * Space complexity: O(1)
+ */
+function merge(
+  nums1: number[],
+  m: number,
+  nums2: number[],
+  n: number
+) {
+  // Go backwards comparing the bigger numbers
+  let back = n + m - 1;
+  n--;
+  m--;
+  
+  // Since nums1 should always be returned, only care while n >= 0
+  while (n >= 0) {
+    // If m exists, check if nums1 is bigger than nums2
+    if (m >= 0 && nums1[m] > nums2[n]) {
+      nums1[back] = nums1[m];
+      m--;
+    } else {
+      nums1[back] = nums2[n];
+      n--;
+    }
+    back--;
+  }
+
+  return nums1;
+}
+
+// Example: nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
+// Output: [1,2,2,3,5,6]
+```
+
+**Reference**: [array.problems.test.ts:111-154](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/array/array.problems.test.ts)
+
+---
+
+### Problem 4: Array Difference
+
+Find elements that are in one array but not the other (symmetric difference).
+
+```typescript
+/**
+ * Time complexity: O(n)
+ * Space complexity: O(n)
+ */
+function arrayDiff(x: number[], y: number[]): number[] {
+  const xMap = new Map(x.map((n) => [n, n]));
+  const yMap = new Map(y.map((n) => [n, n]));
+
+  return [
+    ...x.filter((n) => !yMap.has(n)),
+    ...y.filter((n) => !xMap.has(n)),
+  ];
+}
+
+// Example: x = [1,2,3,4], y = [3,4,5,6]
+// Output: [1,2,5,6]
+```
+
+**Reference**: [array.problems.test.ts:186-207](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/array/array.problems.test.ts)
+
+---
+
+### Problem 5: Array Pair Sum
+
+Maximize the sum of minimum values in pairs.
+
+```typescript
+/**
+ * Time complexity: O(n log n) - due to sorting
+ * Space complexity: O(1)
+ */
+function arrayPairSum(arr: number[]): number {
+  // Sort first to maximize the min value
+  arr.sort((a, b) => a - b);
+
+  // Sum all min items at even indexes
+  return arr.reduce((sum, num, i) => {
+    if (i % 2 === 0) {
+      sum += num;
+    }
+    return sum;
+  }, 0);
+}
+
+// Example: [1,5,3,2] → sorted: [1,2,3,5]
+// Pairs: (1,2), (3,5) → mins: 1, 3 → sum: 4
+```
+
+**Reference**: [array.problems.test.ts:241-267](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/array/array.problems.test.ts)
+
+## Complexity Reference
+
+| Operation | Time Complexity | Space Complexity |
+|-----------|----------------|------------------|
+| Access | O(1) | - |
+| Search | O(n) | - |
+| Insert (end) | O(1) | - |
+| Insert (arbitrary) | O(n) | - |
+| Delete (end) | O(1) | - |
+| Delete (arbitrary) | O(n) | - |
+| Sort | O(n log n) | O(1) - O(n) |
+
+## Key Takeaways
+
+<Check>
+**Use arrays when:**
+- You need constant-time random access
+- The size is known or doesn't change frequently
+- Memory should be contiguous
+</Check>
+
+<Warning>
+**Avoid arrays when:**
+- Frequent insertions/deletions in the middle
+- Size changes dynamically and unpredictably
+- Memory is fragmented
+</Warning>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="Source Code" icon="code" href="https://github.com/yourusername/dsa-library/blob/main/source/data-structures/array">
+    View array problem implementations
+  </Card>
+  
+  <Card title="Test Cases" icon="flask" href="https://github.com/yourusername/dsa-library/blob/main/source/data-structures/array/array.problems.test.ts">
+    Explore test coverage
+  </Card>
+</CardGroup>

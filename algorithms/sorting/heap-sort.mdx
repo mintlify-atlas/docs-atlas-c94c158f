@@ -1,0 +1,309 @@
+---
+title: 'Heap Sort'
+description: 'Comparison-based sorting algorithm using a binary heap data structure with guaranteed O(n log n) performance'
+---
+
+## Overview
+
+Heap Sort is a comparison-based sorting algorithm that uses a binary heap data structure. It divides its input into a sorted and an unsorted region, and iteratively shrinks the unsorted region by extracting the largest element and inserting it into the sorted region. Heap Sort combines the better attributes of merge sort (O(n log n) worst case) and insertion sort (in-place).
+
+## Implementation
+
+```typescript
+export function heapSort(list: number[]) {
+  // Build heap (rearrange array)
+  for (var i = Math.floor(list.length / 2) - 1; i >= 0; i--) {
+    heapify(list, list.length, i);
+  }
+
+  // One by one extract an element from heap
+  for (var i = list.length - 1; i > 0; i--) {
+    // Move current root to end
+    [list[0], list[i]] = [list[i], list[0]];
+    // call max heapify on the reduced heap
+    heapify(list, i, 0);
+  }
+
+  return list;
+}
+
+// Heapify the subtree rooted with node index which is an index in list
+function heapify(list: number[], size: number, index: number) {
+  var largest = index; // Initialize largest as root
+  var l = 2 * index + 1; // left = 2 * i + 1
+  var r = 2 * index + 2; // right = 2 * i + 2
+
+  // If left child is larger than root
+  if (l < size && list[l] > list[largest]) largest = l;
+
+  // If right child is larger than largest so far
+  if (r < size && list[r] > list[largest]) largest = r;
+
+  // If largest is not root
+  if (largest !== index) {
+    [list[index], list[largest]] = [list[largest], list[index]];
+
+    // Recursively heapify the affected sub-tree
+    heapify(list, size, largest);
+  }
+}
+```
+
+## How It Works
+
+1. **Build Max Heap**: Transform the array into a max heap structure where parent nodes are greater than their children
+2. **Extract Maximum**: Swap the root (maximum element) with the last element in the heap
+3. **Reduce Heap Size**: Decrease the heap size by one
+4. **Heapify**: Restore the heap property for the reduced heap
+5. **Repeat**: Continue steps 2-4 until the heap is empty
+
+<Note>
+A max heap is a complete binary tree where each node is greater than or equal to its children. In array representation, for element at index i:
+- Left child is at index 2i + 1
+- Right child is at index 2i + 2
+- Parent is at index ⌊(i-1)/2⌋
+</Note>
+
+## Complexity Analysis
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    - **Best Case**: O(n log n)
+    - **Average Case**: O(n log n)
+    - **Worst Case**: O(n log n)
+    - Guaranteed performance in all cases
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    - **Space**: O(1) - sorts in place
+    - **Auxiliary**: O(1) - only uses a few variables
+    - **Call Stack**: O(log n) - for heapify recursion
+  </Card>
+</CardGroup>
+
+## Usage Example
+
+```typescript
+import { heapSort } from './heap-sort';
+
+// Example 1: Sort a simple array
+const numbers = [12, 11, 13, 5, 6, 7];
+const sorted = heapSort(numbers);
+console.log(sorted); // [5, 6, 7, 11, 12, 13]
+
+// Example 2: Large array
+const large = [64, 34, 25, 12, 22, 11, 90, 88];
+heapSort(large); // [11, 12, 22, 25, 34, 64, 88, 90]
+
+// Example 3: Already sorted
+const alreadySorted = [1, 2, 3, 4, 5];
+heapSort(alreadySorted); // [1, 2, 3, 4, 5]
+
+// Example 4: Reverse sorted
+const reverseSorted = [9, 7, 5, 3, 1];
+heapSort(reverseSorted); // [1, 3, 5, 7, 9]
+```
+
+## Visual Example
+
+Let's trace through sorting `[4, 10, 3, 5, 1]`:
+
+```
+### Phase 1: Build Max Heap
+Initial array: [4, 10, 3, 5, 1]
+
+Array representation:    Tree representation:
+       4                        4
+      / \                      / \
+    10   3                   10   3
+   /  \                     /  \
+  5    1                   5    1
+
+Heapify from index 1 (parent of last element):
+Compare 10 with children 5 and 1 → already max
+[4, 10, 3, 5, 1]
+
+Heapify from index 0:
+Compare 4 with children 10 and 3 → swap with 10
+[10, 4, 3, 5, 1]
+       10
+      /  \
+     4    3
+    / \
+   5   1
+
+Heapify subtree at index 1:
+Compare 4 with children 5 and 1 → swap with 5
+[10, 5, 3, 4, 1]
+       10
+      /  \
+     5    3
+    / \
+   4   1
+
+### Phase 2: Extract Elements
+Swap root with last element:
+[1, 5, 3, 4, 10]
+Heapify [1, 5, 3, 4]:
+[5, 4, 3, 1, 10]
+
+Swap root with last of remaining:
+[1, 4, 3, 5, 10]
+Heapify [1, 4, 3]:
+[4, 1, 3, 5, 10]
+
+Swap root with last of remaining:
+[3, 1, 4, 5, 10]
+Heapify [3, 1]:
+[3, 1, 4, 5, 10]
+
+Swap root with last of remaining:
+[1, 3, 4, 5, 10]
+
+Final sorted: [1, 3, 4, 5, 10]
+```
+
+## Characteristics
+
+<AccordionGroup>
+  <Accordion title="Stability">
+    Heap Sort is **not stable**. Equal elements may not maintain their relative order due to the heap operations.
+  </Accordion>
+  
+  <Accordion title="In-Place">
+    Yes, Heap Sort is **in-place**. It only requires O(1) additional space (excluding the recursion stack).
+  </Accordion>
+  
+  <Accordion title="Adaptive">
+    No, Heap Sort is **not adaptive**. It always performs O(n log n) operations regardless of the input order.
+  </Accordion>
+  
+  <Accordion title="Online">
+    No, Heap Sort is **not online**. It needs access to all elements to build the initial heap.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use
+
+<Check>
+Heap Sort is excellent when you need guaranteed O(n log n) performance with O(1) space.
+</Check>
+
+**Good for:**
+- Situations requiring guaranteed O(n log n) worst-case performance
+- Memory-constrained environments (in-place sorting)
+- Systems where predictable performance is critical
+- Real-time systems with strict time bounds
+- When you can't afford the O(n²) worst case of Quick Sort
+
+**Avoid when:**
+- Cache performance is critical (poor cache locality)
+- Stable sorting is required
+- Average case performance matters more than worst case (Quick Sort is typically faster)
+- You're sorting small arrays (simpler algorithms may be faster)
+
+## Performance Insights
+
+<Tip>
+**Why Use Heap Sort?**
+
+1. **Guaranteed Performance**: Always O(n log n), never degrades to O(n²)
+2. **In-Place**: Only O(1) extra space needed
+3. **No Recursion Overhead**: Can be implemented iteratively
+4. **Predictable**: No worst-case input patterns
+5. **Foundation for Priority Queues**: Understanding heaps is valuable
+</Tip>
+
+### Cache Performance
+
+<Warning>
+Heap Sort has poor cache locality compared to Quick Sort:
+- Heap operations access elements scattered throughout the array
+- Quick Sort's partitioning accesses nearby elements sequentially
+- This makes Quick Sort faster in practice despite similar complexity
+</Warning>
+
+## Code Walkthrough
+
+### Heapify Function
+```typescript
+function heapify(list: number[], size: number, index: number) {
+  var largest = index;        // Assume current node is largest
+  var l = 2 * index + 1;      // Left child index
+  var r = 2 * index + 2;      // Right child index
+
+  // Check if left child is larger
+  if (l < size && list[l] > list[largest]) 
+    largest = l;
+
+  // Check if right child is larger
+  if (r < size && list[r] > list[largest]) 
+    largest = r;
+
+  // If largest is not current node, swap and recursively heapify
+  if (largest !== index) {
+    [list[index], list[largest]] = [list[largest], list[index]];
+    heapify(list, size, largest);  // Recursively heapify affected subtree
+  }
+}
+```
+
+### Main Function
+```typescript
+export function heapSort(list: number[]) {
+  // Build max heap
+  // Start from last non-leaf node and heapify each
+  for (var i = Math.floor(list.length / 2) - 1; i >= 0; i--) {
+    heapify(list, list.length, i);
+  }
+
+  // Extract elements from heap one by one
+  for (var i = list.length - 1; i > 0; i--) {
+    // Move current root (max) to end
+    [list[0], list[i]] = [list[i], list[0]];
+    
+    // Heapify the reduced heap (excluding sorted portion)
+    heapify(list, i, 0);
+  }
+
+  return list;
+}
+```
+
+## Heap Operations Time Complexity
+
+| Operation | Time Complexity | Description |
+|-----------|----------------|-------------|
+| Build Heap | O(n) | Convert array to heap (not O(n log n)!) |
+| Heapify | O(log n) | Restore heap property |
+| Extract Max | O(log n) | Remove root and heapify |
+| Insert | O(log n) | Add element and heapify up |
+
+<Info>
+**Why is building a heap O(n)?**
+
+While heapify is O(log n), building a heap from scratch is O(n), not O(n log n). This is because:
+- Half the nodes are leaves (no heapify needed)
+- Quarter of nodes have height 1
+- Most nodes are near the bottom
+- Sum of heights: n/2 × 0 + n/4 × 1 + n/8 × 2 + ... = O(n)
+</Info>
+
+## Comparison with Other Sorts
+
+| Algorithm | Best Case | Average Case | Worst Case | Space | Stable | Cache-Friendly |
+|-----------|-----------|--------------|------------|-------|--------|----------------|
+| Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | No | No |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No | Yes |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes | Yes |
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | Yes |
+
+## Use in Priority Queues
+
+<Info>
+The heap data structure used in Heap Sort is the foundation for **priority queues**, which are used in:
+- Dijkstra's shortest path algorithm
+- Prim's minimum spanning tree
+- Event scheduling in simulations
+- Huffman coding
+- Memory management
+</Info>

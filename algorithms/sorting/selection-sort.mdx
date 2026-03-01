@@ -1,0 +1,211 @@
+---
+title: 'Selection Sort'
+description: 'In-place comparison sorting algorithm that divides the input into sorted and unsorted regions'
+---
+
+## Overview
+
+Selection Sort is an in-place comparison sorting algorithm that divides the input list into two parts: a sorted portion at the left end and an unsorted portion at the right end. Initially, the sorted portion is empty and the unsorted portion is the entire list. The algorithm proceeds by finding the smallest element in the unsorted portion and swapping it with the leftmost unsorted element.
+
+## Implementation
+
+```typescript
+function min(list: number[], start: number) {
+  let min = start;
+
+  for (let i = start + 1; i < list.length; i++) {
+    if (list[i] < list[min]) {
+      min = i;
+    }
+  }
+
+  return min;
+}
+
+export function selectionSort(list: number[]) {
+  for (let i = 0; i < list.length; i++) {
+    const minIndex = min(list, i);
+    [list[i], list[minIndex]] = [list[minIndex], list[i]];
+  }
+
+  return list;
+}
+```
+
+## How It Works
+
+1. **Find Minimum**: Search the unsorted portion for the minimum element
+2. **Swap**: Swap the minimum element with the first element of the unsorted portion
+3. **Expand Sorted Region**: Move the boundary between sorted and unsorted portions one element to the right
+4. **Repeat**: Continue until the entire array is sorted
+
+<Note>
+Selection Sort performs exactly n-1 swaps, which can be advantageous when write operations are expensive.
+</Note>
+
+## Complexity Analysis
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    - **Best Case**: O(n²) - always scans entire unsorted portion
+    - **Average Case**: O(n²)
+    - **Worst Case**: O(n²)
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    - **Space**: O(1) - sorts in place
+    - **Auxiliary**: O(1) - only uses a few variables
+  </Card>
+</CardGroup>
+
+## Usage Example
+
+```typescript
+import { selectionSort } from './selection-sort';
+
+// Example 1: Sort a simple array
+const numbers = [64, 25, 12, 22, 11];
+const sorted = selectionSort(numbers);
+console.log(sorted); // [11, 12, 22, 25, 64]
+
+// Example 2: Already sorted array
+const alreadySorted = [1, 2, 3, 4, 5];
+selectionSort(alreadySorted); // [1, 2, 3, 4, 5]
+
+// Example 3: Reverse sorted array
+const reverseSorted = [5, 4, 3, 2, 1];
+selectionSort(reverseSorted); // [1, 2, 3, 4, 5]
+
+// Example 4: Array with duplicates
+const withDuplicates = [3, 1, 4, 1, 5, 9, 2, 6];
+selectionSort(withDuplicates); // [1, 1, 2, 3, 4, 5, 6, 9]
+```
+
+## Visual Example
+
+Let's trace through sorting `[64, 25, 12, 22, 11]`:
+
+```
+Initial: [64, 25, 12, 22, 11]
+         ^
+         sorted | unsorted
+
+Pass 1: Find min in [64, 25, 12, 22, 11] → 11
+        Swap 64 ↔ 11
+        [11, 25, 12, 22, 64]
+             ^
+             sorted | unsorted
+
+Pass 2: Find min in [25, 12, 22, 64] → 12
+        Swap 25 ↔ 12
+        [11, 12, 25, 22, 64]
+                 ^
+                 sorted | unsorted
+
+Pass 3: Find min in [25, 22, 64] → 22
+        Swap 25 ↔ 22
+        [11, 12, 22, 25, 64]
+                     ^
+                     sorted | unsorted
+
+Pass 4: Find min in [25, 64] → 25
+        No swap needed
+        [11, 12, 22, 25, 64]
+                         ^
+                         sorted
+```
+
+## Characteristics
+
+<AccordionGroup>
+  <Accordion title="Stability">
+    Selection Sort is **not stable** by default. Equal elements may not maintain their relative order. However, it can be made stable with modifications.
+  </Accordion>
+  
+  <Accordion title="In-Place">
+    Yes, Selection Sort is **in-place**. It requires only O(1) additional memory.
+  </Accordion>
+  
+  <Accordion title="Adaptive">
+    No, Selection Sort is **not adaptive**. It always performs O(n²) comparisons regardless of initial order.
+  </Accordion>
+  
+  <Accordion title="Online">
+    No, Selection Sort is **not online**. It needs access to all elements before sorting.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use
+
+<Warning>
+Selection Sort has O(n²) time complexity in all cases, making it inefficient for large datasets.
+</Warning>
+
+**Good for:**
+- Very small datasets where simplicity matters
+- Situations where write operations are expensive (only n-1 swaps)
+- Memory-constrained environments (O(1) space)
+- Educational purposes to understand sorting fundamentals
+
+**Avoid when:**
+- Working with large datasets
+- Performance is critical
+- You need a stable sort
+- Input data might be partially sorted (no benefit unlike Insertion Sort)
+
+## Unique Characteristics
+
+<Info>
+**Minimal Swaps**: Selection Sort makes at most n-1 swaps, which is optimal. This makes it useful when writing to memory is significantly more expensive than reading.
+</Info>
+
+### Number of Operations
+
+For an array of size n:
+- **Comparisons**: Always (n-1) + (n-2) + ... + 1 = n(n-1)/2 ≈ n²/2
+- **Swaps**: At most n-1 (one per pass)
+- **Memory Reads**: Approximately n² (from comparisons)
+- **Memory Writes**: At most 3(n-1) (from swaps)
+
+## Comparison with Other Sorts
+
+| Algorithm | Best Case | Average Case | Worst Case | Space | Stable | Swaps |
+|-----------|-----------|--------------|------------|-------|--------|-------|
+| Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | No | n-1 |
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | O(n²) |
+| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | O(n²) |
+| Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | No | O(n log n) |
+
+## Code Walkthrough
+
+The implementation consists of two functions:
+
+### Helper Function: `min()`
+```typescript
+function min(list: number[], start: number) {
+  let min = start;  // Assume first element is minimum
+
+  for (let i = start + 1; i < list.length; i++) {
+    if (list[i] < list[min]) {
+      min = i;  // Update minimum index
+    }
+  }
+
+  return min;  // Return index of minimum element
+}
+```
+
+This helper function finds the index of the minimum element in the unsorted portion of the array starting from `start`.
+
+### Main Function: `selectionSort()`
+```typescript
+export function selectionSort(list: number[]) {
+  for (let i = 0; i < list.length; i++) {
+    const minIndex = min(list, i);  // Find minimum in unsorted portion
+    [list[i], list[minIndex]] = [list[minIndex], list[i]];  // Swap
+  }
+
+  return list;
+}
+```
+
+The main function iterates through the array, finding the minimum element in the remaining unsorted portion and swapping it with the current position.

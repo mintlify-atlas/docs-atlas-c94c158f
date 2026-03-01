@@ -1,0 +1,379 @@
+---
+title: 'Queue'
+description: 'FIFO data structure implementation with API reference'
+icon: 'arrow-right-arrow-left'
+---
+
+# Queue
+
+A First-In-First-Out (FIFO) data structure where elements are added at the rear and removed from the front.
+
+## Overview
+
+Queues follow the principle of "first in, first out." Think of a line at a store - the first person to join the line is the first to be served. This implementation uses a singly linked list internally for O(1) enqueue and dequeue operations.
+
+## Implementation
+
+### Class Definition
+
+```typescript
+import { SinglyLinkedList } from '../lists/singly-linked-list/singly-linked-list';
+
+class Queue<T = number> {
+  #queue = new SinglyLinkedList<T>();
+  
+  // ... methods
+}
+```
+
+**Reference**: [queue.ts:1-4](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/queue/queue.ts)
+
+<Info>
+The implementation uses a private singly linked list (`#queue`) for storage. Elements are added at the tail (enqueue) and removed from the head (dequeue).
+</Info>
+
+## API Reference
+
+### enqueue(item: T): void
+
+Adds an item to the rear of the queue.
+
+```typescript
+const queue = new Queue<number>();
+queue.enqueue(1);
+queue.enqueue(2);
+queue.enqueue(3);
+// Queue: [3][2][1] (1 is at front, 3 at rear)
+```
+
+**Complexity**: O(n) - due to underlying linked list push operation
+
+**Reference**: [queue.ts:10-12](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/queue/queue.ts)
+
+---
+
+### dequeue(): T | undefined
+
+Removes and returns the front element from the queue.
+
+```typescript
+const queue = new Queue<number>();
+queue.enqueue(1);
+queue.enqueue(2);
+const front = queue.dequeue(); // returns 1
+// Queue: [2]
+```
+
+**Returns**: The removed element, or `undefined` if queue is empty
+
+**Complexity**: O(1) - removes from head
+
+**Reference**: [queue.ts:17-22](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/queue/queue.ts)
+
+---
+
+### peek(): T | undefined
+
+Returns the front element without removing it.
+
+```typescript
+const queue = new Queue<number>();
+queue.enqueue(1);
+queue.enqueue(2);
+const front = queue.peek(); // returns 1
+// Queue: [2][1] (unchanged)
+```
+
+**Returns**: The front element, or `undefined` if queue is empty
+
+**Complexity**: O(1)
+
+**Reference**: [queue.ts:27-29](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/queue/queue.ts)
+
+---
+
+### isEmpty(): boolean
+
+Checks if the queue is empty.
+
+```typescript
+const queue = new Queue<number>();
+console.log(queue.isEmpty()); // true
+queue.enqueue(1);
+console.log(queue.isEmpty()); // false
+```
+
+**Complexity**: O(1)
+
+**Reference**: [queue.ts:34-36](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/queue/queue.ts)
+
+---
+
+### size: number
+
+Gets the number of elements in the queue.
+
+```typescript
+const queue = new Queue<number>();
+console.log(queue.size); // 0
+queue.enqueue(1);
+queue.enqueue(2);
+console.log(queue.size); // 2
+```
+
+**Complexity**: O(1)
+
+**Reference**: [queue.ts:38-40](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/queue/queue.ts)
+
+---
+
+### toString(): string
+
+Returns a string representation of the queue.
+
+```typescript
+const queue = new Queue<number>();
+queue.enqueue(1);
+queue.enqueue(2);
+queue.enqueue(3);
+console.log(queue.toString()); // "[3][2][1]"
+// (1 is at front, 3 at rear)
+```
+
+**Complexity**: O(n)
+
+**Reference**: [queue.ts:42-55](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/queue/queue.ts)
+
+## Complexity Summary
+
+| Operation | Time Complexity | Space Complexity |
+|-----------|----------------|------------------|
+| enqueue | O(n)* | O(1) |
+| dequeue | O(1) | O(1) |
+| peek | O(1) | O(1) |
+| isEmpty | O(1) | O(1) |
+| size | O(1) | O(1) |
+| toString | O(n) | O(1) |
+
+<Info>
+*The current implementation has O(n) enqueue because the underlying singly linked list's `push` method traverses to the tail. This can be optimized to O(1) by maintaining a tail pointer.
+</Info>
+
+## Common Use Cases
+
+### Breadth-First Search (BFS)
+```typescript
+function bfs<T>(root: TreeNode<T>) {
+  const queue = new Queue<TreeNode<T>>();
+  queue.enqueue(root);
+  
+  while (!queue.isEmpty()) {
+    const node = queue.dequeue();
+    console.log(node.value);
+    
+    for (const child of node.children) {
+      queue.enqueue(child);
+    }
+  }
+}
+```
+
+### Task Scheduling
+```typescript
+class TaskScheduler {
+  private tasks = new Queue<() => void>();
+  
+  addTask(task: () => void) {
+    this.tasks.enqueue(task);
+  }
+  
+  processTasks() {
+    while (!this.tasks.isEmpty()) {
+      const task = this.tasks.dequeue();
+      task?.();
+    }
+  }
+}
+```
+
+### Buffer Management
+```typescript
+class StreamBuffer {
+  private buffer = new Queue<string>();
+  private maxSize: number;
+  
+  constructor(maxSize: number) {
+    this.maxSize = maxSize;
+  }
+  
+  write(data: string) {
+    if (this.buffer.size >= this.maxSize) {
+      this.buffer.dequeue(); // Remove oldest
+    }
+    this.buffer.enqueue(data);
+  }
+  
+  read(): string | undefined {
+    return this.buffer.dequeue();
+  }
+}
+```
+
+### Request Handling
+```typescript
+class RequestQueue {
+  private queue = new Queue<Request>();
+  
+  addRequest(req: Request) {
+    this.queue.enqueue(req);
+  }
+  
+  async processNext(): Promise<void> {
+    const request = this.queue.dequeue();
+    if (request) {
+      await handleRequest(request);
+    }
+  }
+  
+  getPendingCount(): number {
+    return this.queue.size;
+  }
+}
+```
+
+## Queue Variations
+
+### Circular Queue
+Fixed-size queue where the rear wraps around to the front when reaching the end.
+
+```typescript
+class CircularQueue<T> {
+  private items: (T | null)[];
+  private front = 0;
+  private rear = 0;
+  private size = 0;
+  
+  constructor(capacity: number) {
+    this.items = new Array(capacity).fill(null);
+  }
+  
+  enqueue(item: T): boolean {
+    if (this.size === this.items.length) return false;
+    
+    this.items[this.rear] = item;
+    this.rear = (this.rear + 1) % this.items.length;
+    this.size++;
+    return true;
+  }
+  
+  dequeue(): T | null {
+    if (this.size === 0) return null;
+    
+    const item = this.items[this.front];
+    this.items[this.front] = null;
+    this.front = (this.front + 1) % this.items.length;
+    this.size--;
+    return item;
+  }
+}
+```
+
+### Priority Queue
+Elements are dequeued based on priority rather than insertion order.
+
+<Tip>
+For priority queue implementation, see [Binary Heap](/data-structures/binary-heap) which provides efficient priority-based operations.
+</Tip>
+
+### Deque (Double-Ended Queue)
+Supports insertion and deletion at both ends.
+
+```typescript
+class Deque<T> {
+  private list = new DoublyLinkedList<T>();
+  
+  addFront(item: T) { this.list.insert(item, 0); }
+  addRear(item: T) { this.list.push(item); }
+  removeFront() { return this.list.removeAt(0); }
+  removeRear() { return this.list.pop(); }
+}
+```
+
+## Key Characteristics
+
+<Check>
+**Advantages:**
+- Fair FIFO ordering
+- O(1) dequeue operation
+- Simple and intuitive
+- Natural fit for scheduling and buffering
+</Check>
+
+<Warning>
+**Limitations:**
+- No random access to elements
+- Can only access front element
+- Current implementation has O(n) enqueue
+- Not suitable for priority-based access
+</Warning>
+
+## When to Use a Queue
+
+<AccordionGroup>
+  <Accordion title="Level-Order Traversal">
+    BFS in trees and graphs, processing nodes level by level.
+  </Accordion>
+  
+  <Accordion title="Resource Sharing">
+    Printer queues, CPU scheduling, request handling where fairness matters.
+  </Accordion>
+  
+  <Accordion title="Asynchronous Data">
+    Message queues, event handling, stream processing.
+  </Accordion>
+  
+  <Accordion title="Buffering">
+    I/O buffers, producer-consumer problems, rate limiting.
+  </Accordion>
+</AccordionGroup>
+
+## Performance Optimization
+
+<Tip>
+**Optimization**: The current implementation can achieve O(1) enqueue by maintaining a tail pointer in the underlying linked list:
+
+```typescript
+class OptimizedQueue<T> {
+  private head: Node<T> | null = null;
+  private tail: Node<T> | null = null;
+  private count = 0;
+  
+  enqueue(item: T) { // O(1)
+    const node = new Node(item);
+    if (!this.tail) {
+      this.head = this.tail = node;
+    } else {
+      this.tail.next = node;
+      this.tail = node;
+    }
+    this.count++;
+  }
+}
+```
+</Tip>
+
+## Related Data Structures
+
+<CardGroup cols={2}>
+  <Card title="Stack" icon="layer-group" href="/data-structures/stack">
+    LIFO alternative to FIFO queue
+  </Card>
+  
+  <Card title="Binary Heap" icon="chart-pyramid" href="/data-structures/binary-heap">
+    For priority queue implementation
+  </Card>
+  
+  <Card title="Singly Linked List" icon="link" href="/data-structures/linked-list">
+    Underlying implementation
+  </Card>
+</CardGroup>

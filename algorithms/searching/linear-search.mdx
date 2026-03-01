@@ -1,0 +1,164 @@
+---
+title: 'Linear search'
+description: 'A simple sequential search algorithm that checks each element in order'
+icon: 'magnifying-glass'
+keywords: ['linear search', 'sequential search', 'array search', 'search algorithm']
+---
+
+Linear search is the simplest search algorithm that checks each element in a list sequentially until the target value is found or the end of the list is reached.
+
+## Algorithm overview
+
+Linear search works by iterating through each element in the list from start to end, comparing each element with the target value. When a match is found, the index is returned. If no match is found after checking all elements, the algorithm returns -1.
+
+### Key characteristics
+
+- Works on both sorted and unsorted arrays
+- Simple to implement and understand
+- No preprocessing required
+- Best for small datasets or unsorted data
+
+## Implementation
+
+The linear search implementation uses a simple loop to check each element:
+
+```typescript linear-search.ts
+export function linearSearch<T = number>(list: T[], value: T) {
+  for (let i = 0; i < list.length; i++) {
+    if (list[i] === value) return i;
+  }
+
+  return -1;
+}
+```
+
+### Function signature
+
+```typescript
+function linearSearch<T = number>(list: T[], value: T): number
+```
+
+<Fields>
+  <Field name="list" type="T[]" required>
+    The array to search through
+  </Field>
+  <Field name="value" type="T" required>
+    The target value to find
+  </Field>
+  <Field name="returns" type="number">
+    The index of the found element, or -1 if not found
+  </Field>
+</Fields>
+
+## Complexity analysis
+
+<AccordionGroup>
+  <Accordion title="Time complexity">
+    - **Best case**: O(1) - Element is at the first position
+    - **Average case**: O(n) - Element is somewhere in the middle
+    - **Worst case**: O(n) - Element is at the end or not present
+    
+    The algorithm must check every element in the worst case, making it linear in time complexity.
+  </Accordion>
+  
+  <Accordion title="Space complexity">
+    **O(1)** - Constant space
+    
+    The algorithm only uses a single loop variable regardless of input size.
+  </Accordion>
+</AccordionGroup>
+
+## Usage examples
+
+### Basic usage
+
+```typescript
+import { linearSearch } from './linear-search';
+
+const numbers = [3, 4, 5, 6, 2, 1];
+
+// Find an element that exists
+const index = linearSearch(numbers, 2);
+console.log(index); // Output: 4
+
+// Search for non-existent element
+const notFound = linearSearch(numbers, 7);
+console.log(notFound); // Output: -1
+```
+
+### Searching strings
+
+```typescript
+const fruits = ['apple', 'banana', 'cherry', 'date'];
+
+const result = linearSearch(fruits, 'cherry');
+console.log(result); // Output: 2
+```
+
+### Searching objects
+
+```typescript
+interface User {
+  id: number;
+  name: string;
+}
+
+const users: User[] = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+  { id: 3, name: 'Charlie' }
+];
+
+// Search by object reference
+const targetUser = users[1];
+const index = linearSearch(users, targetUser);
+console.log(index); // Output: 1
+```
+
+<Note>
+  Linear search uses strict equality (`===`) for comparison. For custom comparison logic or searching objects by properties, you'll need to implement a custom search function.
+</Note>
+
+## When to use linear search
+
+<Columns cols={2}>
+  <Card title="Good for" icon="check">
+    - Small datasets (< 100 elements)
+    - Unsorted arrays
+    - Single searches
+    - When simplicity matters
+  </Card>
+  
+  <Card title="Avoid when" icon="xmark">
+    - Large sorted datasets
+    - Multiple searches on same data
+    - Performance is critical
+    - Data can be preprocessed
+  </Card>
+</Columns>
+
+## Advantages and disadvantages
+
+### Advantages
+
+- Simple to implement and understand
+- Works on unsorted data
+- No preprocessing or additional memory required
+- Works with any data type that supports equality comparison
+
+### Disadvantages
+
+- Inefficient for large datasets
+- Slower than other algorithms for sorted data
+- No way to optimize for repeated searches
+
+## Related algorithms
+
+<CardGroup cols={2}>
+  <Card title="Binary search" icon="code-branch" href="/algorithms/searching/binary-search">
+    Much faster O(log n) search for sorted arrays
+  </Card>
+  <Card title="Depth-first search" icon="sitemap" href="/algorithms/searching/depth-first-search">
+    Graph and tree traversal algorithm
+  </Card>
+</CardGroup>

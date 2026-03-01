@@ -1,0 +1,331 @@
+---
+title: 'Bucket Sort'
+description: 'Distribution-based sorting algorithm that divides elements into buckets and sorts them individually'
+---
+
+## Overview
+
+Bucket Sort is a distribution-based sorting algorithm that works by distributing elements into several buckets, sorting each bucket individually (typically using another sorting algorithm), and then concatenating the sorted buckets. It achieves linear time complexity when input is uniformly distributed across the range.
+
+## Implementation
+
+```typescript
+import { insertionSort } from '../insertion-sort/insertion-sort';
+
+function createBuckets(list: number[], bucketSize: number) {
+  let min = list[0];
+  let max = list[0];
+
+  for (let i = 1; i < list.length; i++) {
+    if (list[i] < min) {
+      min = list[i];
+    }
+
+    if (list[i] > max) {
+      max = list[i];
+    }
+  }
+
+  const bucketCount = Math.floor((max - min) / bucketSize) + 1;
+  const buckets: number[][] = new Array(bucketCount).fill(null).map((_) => []);
+
+  for (let i = 0; i < list.length; i++) {
+    const bucket = Math.floor((list[i] - min) / bucketSize);
+    buckets[bucket].push(list[i]);
+  }
+
+  return buckets;
+}
+
+/**
+ * @param list
+ * @param bucketSize The algorithm executes its best scenario when the elements can be
+ * distributed into the buckets evenly. i.e. if the elements are densely allocated, then
+ * using fewer buckets is better. By default this function will use a bucket size equal to 3.
+ */
+export function bucketSort(list: number[], bucketSize = 3) {
+  if (list.length < 2) {
+    return list;
+  }
+
+  const sortedList: number[] = [];
+  const buckets = createBuckets(list, bucketSize);
+
+  for (let i = 0; i < buckets.length; i++) {
+    const bucket = buckets[i];
+    sortedList.push(...insertionSort(bucket));
+  }
+
+  return sortedList;
+}
+```
+
+## How It Works
+
+1. **Find Range**: Determine the minimum and maximum values in the array
+2. **Create Buckets**: Divide the range into a number of equally-sized buckets
+3. **Distribute**: Place each element into its appropriate bucket based on its value
+4. **Sort Buckets**: Sort each bucket individually (using Insertion Sort in this implementation)
+5. **Concatenate**: Combine all sorted buckets to produce the final sorted array
+
+<Note>
+Bucket Sort performs best when elements are uniformly distributed. If all elements fall into the same bucket, performance degrades to the sorting algorithm used for individual buckets.
+</Note>
+
+## Complexity Analysis
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    - **Best Case**: O(n + k) - uniform distribution
+    - **Average Case**: O(n + k) where k is number of buckets
+    - **Worst Case**: O(n²) - all elements in one bucket
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    - **Space**: O(n + k) for buckets and output
+    - **Auxiliary**: O(n) for bucket storage
+  </Card>
+</CardGroup>
+
+## Usage Example
+
+```typescript
+import { bucketSort } from './bucket-sort';
+
+// Example 1: Sort uniformly distributed numbers
+const numbers = [29, 25, 3, 49, 9, 37, 21, 43];
+const sorted = bucketSort(numbers);
+console.log(sorted); // [3, 9, 21, 25, 29, 37, 43, 49]
+
+// Example 2: Custom bucket size (larger buckets, fewer of them)
+const data = [0.42, 0.32, 0.33, 0.52, 0.37, 0.47, 0.51];
+const sortedData = bucketSort(data, 5);
+
+// Example 3: Integer array with custom bucket size
+const integers = [5, 2, 8, 1, 9, 3, 7, 6, 4];
+const sortedInts = bucketSort(integers, 2); // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+// Example 4: Dense data (smaller bucket size works better)
+const dense = [101, 102, 103, 104, 105, 106, 107, 108];
+const sortedDense = bucketSort(dense, 2);
+```
+
+## Visual Example
+
+Let's trace through sorting `[29, 25, 3, 49, 9, 37, 21, 43]` with bucketSize=10:
+
+```
+Step 1: Find range
+  min = 3, max = 49
+  range = 49 - 3 = 46
+
+Step 2: Calculate bucket count
+  bucketCount = floor(46 / 10) + 1 = 5 buckets
+  Bucket ranges: [3-12], [13-22], [23-32], [33-42], [43-52]
+
+Step 3: Distribute elements
+  29 → bucket 2 [23-32]
+  25 → bucket 2 [23-32]
+  3  → bucket 0 [3-12]
+  49 → bucket 4 [43-52]
+  9  → bucket 0 [3-12]
+  37 → bucket 3 [33-42]
+  21 → bucket 1 [13-22]
+  43 → bucket 4 [43-52]
+
+  Buckets:
+  [0]: [3, 9]
+  [1]: [21]
+  [2]: [29, 25]
+  [3]: [37]
+  [4]: [49, 43]
+
+Step 4: Sort each bucket (using Insertion Sort)
+  [0]: [3, 9] → [3, 9]
+  [1]: [21] → [21]
+  [2]: [29, 25] → [25, 29]
+  [3]: [37] → [37]
+  [4]: [49, 43] → [43, 49]
+
+Step 5: Concatenate
+  [3, 9, 21, 25, 29, 37, 43, 49]
+```
+
+## Characteristics
+
+<AccordionGroup>
+  <Accordion title="Stability">
+    Bucket Sort can be **stable** if the algorithm used to sort individual buckets is stable. Since this implementation uses Insertion Sort (which is stable), the overall algorithm is stable.
+  </Accordion>
+  
+  <Accordion title="In-Place">
+    No, Bucket Sort is **not in-place**. It requires O(n + k) additional space for buckets.
+  </Accordion>
+  
+  <Accordion title="Adaptive">
+    Partially **adaptive** depending on the distribution of data and the sorting algorithm used for individual buckets.
+  </Accordion>
+  
+  <Accordion title="Online">
+    No, Bucket Sort is **not online**. It needs to know the range (min/max) before distributing elements.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use
+
+<Check>
+Bucket Sort excels when input is uniformly distributed over a known range.
+</Check>
+
+**Good for:**
+- Uniformly distributed floating-point numbers in a known range (e.g., [0, 1))
+- External sorting when data is too large for memory
+- Data with a known distribution pattern
+- When linear time sorting is needed and data fits the criteria
+- Parallel processing (buckets can be sorted independently)
+
+**Avoid when:**
+- Data is not uniformly distributed (leads to unbalanced buckets)
+- Range is unknown or very large
+- Memory is limited (requires extra space)
+- Data is already sorted or nearly sorted (simpler algorithms may be better)
+
+## Bucket Size Selection
+
+<Tip>
+**Choosing the Right Bucket Size:**
+
+The `bucketSize` parameter significantly affects performance:
+
+**Smaller buckets (more buckets):**
+- Better when data is spread across a large range
+- More buckets means fewer elements per bucket
+- Faster individual bucket sorting
+- Higher memory overhead
+
+**Larger buckets (fewer buckets):**
+- Better when data is densely packed
+- Fewer buckets reduces memory usage
+- May result in more elements per bucket
+- Sorting individual buckets takes longer
+
+**Default value (3):**
+- Good general-purpose choice
+- Balances between memory and performance
+</Tip>
+
+## Performance Insights
+
+### Best Case: O(n + k)
+Occurs when:
+- Elements are uniformly distributed
+- Each bucket gets approximately n/k elements
+- Sorting each bucket is O(1) on average
+- Total: O(n) distribution + O(k) bucket sorting = O(n + k)
+
+### Worst Case: O(n²)
+Occurs when:
+- All elements fall into a single bucket
+- Degenerates to the sorting algorithm used for buckets
+- With Insertion Sort: O(n²)
+
+### Average Case Analysis
+```
+Let n = number of elements
+Let k = number of buckets
+
+Distribution: O(n)
+Sorting k buckets with ~n/k elements each:
+  k × O((n/k)²) = O(n²/k)
+
+If k = Θ(n), then O(n²/n) = O(n)
+Total: O(n + n) = O(n)
+```
+
+## Code Walkthrough
+
+### Helper Function: `createBuckets()`
+```typescript
+function createBuckets(list: number[], bucketSize: number) {
+  // Find the range of values
+  let min = list[0];
+  let max = list[0];
+
+  for (let i = 1; i < list.length; i++) {
+    if (list[i] < min) min = list[i];
+    if (list[i] > max) max = list[i];
+  }
+
+  // Calculate number of buckets needed
+  const bucketCount = Math.floor((max - min) / bucketSize) + 1;
+  
+  // Initialize empty buckets
+  const buckets: number[][] = new Array(bucketCount)
+    .fill(null)
+    .map((_) => []);
+
+  // Distribute elements into buckets
+  for (let i = 0; i < list.length; i++) {
+    const bucket = Math.floor((list[i] - min) / bucketSize);
+    buckets[bucket].push(list[i]);
+  }
+
+  return buckets;
+}
+```
+
+### Main Function: `bucketSort()`
+```typescript
+export function bucketSort(list: number[], bucketSize = 3) {
+  // Base case: small arrays don't need bucketing
+  if (list.length < 2) {
+    return list;
+  }
+
+  const sortedList: number[] = [];
+  const buckets = createBuckets(list, bucketSize);
+
+  // Sort each bucket and concatenate results
+  for (let i = 0; i < buckets.length; i++) {
+    const bucket = buckets[i];
+    sortedList.push(...insertionSort(bucket));
+  }
+
+  return sortedList;
+}
+```
+
+## Comparison with Other Sorts
+
+| Algorithm | Best Case | Average Case | Worst Case | Space | Stable | Distribution |
+|-----------|-----------|--------------|------------|-------|--------|-------------|
+| Bucket Sort | O(n + k) | O(n + k) | O(n²) | O(n + k) | Yes* | Required |
+| Counting Sort | O(n + k) | O(n + k) | O(n + k) | O(n + k) | Yes | Not required |
+| Radix Sort | O(d(n + k)) | O(d(n + k)) | O(d(n + k)) | O(n + k) | Yes | Not required |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No | Not required |
+
+*Stability depends on the sorting algorithm used for individual buckets
+
+## Real-World Applications
+
+<Info>
+**Where Bucket Sort Shines:**
+
+1. **Floating-Point Numbers**: Sorting numbers in [0.0, 1.0) range
+2. **External Sorting**: When data is too large for RAM
+3. **Parallel Processing**: Buckets can be distributed across multiple processors
+4. **Geographic Data**: Sorting by latitude/longitude in bounded regions
+5. **Histogram Generation**: Creating frequency distributions
+6. **Load Balancing**: Distributing tasks across servers
+</Info>
+
+## Variants
+
+<Warning>
+**Bucket Sort Variants:**
+
+**Interpolation Sort**: Uses interpolation to determine bucket placement more precisely
+
+**ProxmapSort**: Advanced bucket sort that uses multiple passes and dynamic bucket sizing
+
+**Flash Sort**: Hybrid approach that combines bucket sort with insertion sort
+</Warning>

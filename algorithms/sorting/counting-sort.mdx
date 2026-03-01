@@ -1,0 +1,340 @@
+---
+title: 'Counting Sort'
+description: 'Non-comparison integer sorting algorithm that counts occurrences of each distinct element'
+---
+
+## Overview
+
+Counting Sort is a non-comparison-based sorting algorithm that operates by counting the number of objects that possess distinct key values. It then performs arithmetic to calculate the position of each object in the output sequence. Counting Sort is particularly efficient when the range of input values is not significantly greater than the number of elements to be sorted.
+
+## Implementation
+
+```typescript
+export function countingSort(list: number[]) {
+  if (list.length < 2) {
+    return list;
+  }
+
+  const max = Math.max(...list);
+  const counts: number[] = new Array(max + 1).fill(0);
+
+  for (let i = 0; i < list.length; i++) {
+    counts[list[i]]++;
+  }
+
+  const sortedList = [];
+
+  for (let i = 0; i < counts.length; i++) {
+    while (counts[i] > 0) {
+      sortedList.push(i);
+      counts[i]--;
+    }
+  }
+
+  return sortedList;
+}
+```
+
+## How It Works
+
+1. **Find Maximum**: Determine the maximum value in the input array to know the range
+2. **Count Occurrences**: Create a count array and store the frequency of each element
+3. **Reconstruct**: Iterate through the count array and output each value according to its frequency
+
+<Note>
+Counting Sort is a **non-comparison** sorting algorithm. It doesn't compare elements against each other, which allows it to break the O(n log n) lower bound of comparison-based sorts.
+</Note>
+
+## Complexity Analysis
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    - **Best Case**: O(n + k) where k is the range
+    - **Average Case**: O(n + k)
+    - **Worst Case**: O(n + k)
+    - Linear time in all cases!
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    - **Space**: O(k) for count array
+    - **Auxiliary**: O(k) where k = max value
+    - Can be problematic if k is large
+  </Card>
+</CardGroup>
+
+## Usage Example
+
+```typescript
+import { countingSort } from './counting-sort';
+
+// Example 1: Sort a simple array of small integers
+const numbers = [4, 2, 2, 8, 3, 3, 1];
+const sorted = countingSort(numbers);
+console.log(sorted); // [1, 2, 2, 3, 3, 4, 8]
+
+// Example 2: Array with many duplicates (excellent performance)
+const duplicates = [5, 2, 5, 2, 5, 2, 1, 1, 1];
+countingSort(duplicates); // [1, 1, 1, 2, 2, 2, 5, 5, 5]
+
+// Example 3: Sequential numbers
+const sequential = [3, 1, 4, 1, 5, 9, 2, 6];
+countingSort(sequential); // [1, 1, 2, 3, 4, 5, 6, 9]
+
+// Example 4: Single value repeated
+const repeated = [7, 7, 7, 7];
+countingSort(repeated); // [7, 7, 7, 7]
+```
+
+## Visual Example
+
+Let's trace through sorting `[4, 2, 2, 8, 3, 3, 1]`:
+
+```
+Step 1: Find maximum value
+  max = 8
+
+Step 2: Create count array (size max + 1 = 9)
+  counts = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+  indices:  0  1  2  3  4  5  6  7  8
+
+Step 3: Count occurrences
+  Process 4: counts[4]++
+  Process 2: counts[2]++
+  Process 2: counts[2]++
+  Process 8: counts[8]++
+  Process 3: counts[3]++
+  Process 3: counts[3]++
+  Process 1: counts[1]++
+  
+  counts = [0, 1, 2, 2, 1, 0, 0, 0, 1]
+  indices:  0  1  2  3  4  5  6  7  8
+           (none) (1) (2,2) (3,3) (4) ... (8)
+
+Step 4: Reconstruct sorted array
+  Index 0: count = 0, add nothing
+  Index 1: count = 1, add 1
+  Index 2: count = 2, add 2, 2
+  Index 3: count = 2, add 3, 3
+  Index 4: count = 1, add 4
+  Index 5-7: count = 0, add nothing
+  Index 8: count = 1, add 8
+  
+  Result: [1, 2, 2, 3, 3, 4, 8]
+```
+
+## Characteristics
+
+<AccordionGroup>
+  <Accordion title="Stability">
+    This implementation is **not stable** because it doesn't preserve the original order of equal elements. A stable version would require a modified algorithm that uses cumulative counts.
+  </Accordion>
+  
+  <Accordion title="In-Place">
+    No, Counting Sort is **not in-place**. It requires O(k) additional space for the count array, where k is the range of input values.
+  </Accordion>
+  
+  <Accordion title="Adaptive">
+    No, Counting Sort is **not adaptive**. It always performs the same operations regardless of input order.
+  </Accordion>
+  
+  <Accordion title="Comparison-Based">
+    No, Counting Sort is **not comparison-based**. This allows it to achieve linear time complexity.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use
+
+<Check>
+Counting Sort is extremely efficient when sorting integers with a small range.
+</Check>
+
+**Good for:**
+- Small range of integer values (k is small)
+- Many duplicate values
+- When linear time sorting is required
+- As a subroutine in Radix Sort
+- Counting frequencies or creating histograms
+- Age sorting (range 0-150)
+- Grade sorting (range 0-100)
+
+**Avoid when:**
+- Range of values is very large (wastes memory)
+- Sorting floating-point numbers
+- Sorting strings or complex objects
+- Range is unknown or unbounded
+- Memory is limited and k is large
+
+## Performance Insights
+
+<Tip>
+**When Counting Sort Excels:**
+
+**Scenario**: Sorting 1 million ages (range 0-150)
+- Comparison sorts: O(n log n) = ~20 million operations
+- Counting Sort: O(n + k) = 1,000,000 + 150 = ~1 million operations
+- **Result**: 20x faster!
+
+**Scenario**: Sorting 100 numbers (range 0-1,000,000)
+- Counting Sort: O(n + k) = 1,000,100 operations
+- Quick Sort: O(n log n) = ~664 operations
+- **Result**: Counting Sort is slower due to large k!
+</Tip>
+
+### Space vs Time Tradeoff
+
+```
+For n elements with range k:
+
+Time: O(n + k)
+  - O(n) to count occurrences
+  - O(k) to iterate through count array
+  - O(n) to build output
+
+Space: O(k)
+  - Count array of size k
+  
+Optimal when: k = O(n)
+Problematic when: k >> n
+```
+
+## Code Walkthrough
+
+```typescript
+export function countingSort(list: number[]) {
+  // Base case: arrays with < 2 elements are already sorted
+  if (list.length < 2) {
+    return list;
+  }
+
+  // Find the maximum value to determine count array size
+  const max = Math.max(...list);
+  
+  // Create count array initialized to 0
+  const counts: number[] = new Array(max + 1).fill(0);
+
+  // Count occurrences of each value
+  for (let i = 0; i < list.length; i++) {
+    counts[list[i]]++;
+  }
+
+  // Build sorted output array
+  const sortedList = [];
+
+  // Iterate through count array and output values
+  for (let i = 0; i < counts.length; i++) {
+    while (counts[i] > 0) {
+      sortedList.push(i);  // Add value i
+      counts[i]--;          // Decrement count
+    }
+  }
+
+  return sortedList;
+}
+```
+
+## Stable Version
+
+<Warning>
+The implementation shown is not stable. For a stable version that preserves the order of equal elements, use cumulative counts:
+</Warning>
+
+```typescript
+function stableCountingSort(list: number[]) {
+  if (list.length < 2) return list;
+
+  const max = Math.max(...list);
+  const min = Math.min(...list);
+  const range = max - min + 1;
+  
+  const counts = new Array(range).fill(0);
+  const output = new Array(list.length);
+
+  // Count occurrences
+  for (let i = 0; i < list.length; i++) {
+    counts[list[i] - min]++;
+  }
+
+  // Convert to cumulative counts
+  for (let i = 1; i < counts.length; i++) {
+    counts[i] += counts[i - 1];
+  }
+
+  // Build output in reverse to maintain stability
+  for (let i = list.length - 1; i >= 0; i--) {
+    const value = list[i];
+    const index = counts[value - min] - 1;
+    output[index] = value;
+    counts[value - min]--;
+  }
+
+  return output;
+}
+```
+
+## Comparison with Other Sorts
+
+| Algorithm | Best Case | Average Case | Worst Case | Space | Stable | Type |
+|-----------|-----------|--------------|------------|-------|--------|------|
+| Counting Sort | O(n + k) | O(n + k) | O(n + k) | O(k) | No* | Non-comparison |
+| Radix Sort | O(d(n + k)) | O(d(n + k)) | O(d(n + k)) | O(n + k) | Yes | Non-comparison |
+| Bucket Sort | O(n + k) | O(n + k) | O(n²) | O(n + k) | Yes* | Distribution |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No | Comparison |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes | Comparison |
+
+*Depends on implementation
+
+## Real-World Applications
+
+<Info>
+**Practical Uses of Counting Sort:**
+
+1. **Age Sorting**: Sorting people by age (0-150)
+2. **Grade Processing**: Sorting exam scores (0-100)
+3. **Character Sorting**: Sorting ASCII characters (0-255)
+4. **Histogram Generation**: Counting frequencies
+5. **Radix Sort Subroutine**: Used in digit-by-digit sorting
+6. **Image Processing**: Sorting pixel intensity values (0-255)
+7. **Network Traffic**: Sorting packet priorities (0-7)
+</Info>
+
+## Limitations
+
+<Warning>
+**Key Limitations:**
+
+1. **Only for Integers**: Cannot directly sort floating-point numbers or strings
+2. **Range Dependent**: Performance degrades with large value ranges
+3. **Space Requirements**: Requires O(k) space which can be prohibitive
+4. **Not Stable**: This implementation doesn't preserve order of equal elements
+5. **Negative Numbers**: Requires modification to handle negative values
+</Warning>
+
+### Handling Negative Numbers
+
+To sort arrays with negative numbers, adjust indices:
+
+```typescript
+const min = Math.min(...list);
+const max = Math.max(...list);
+const range = max - min + 1;
+const counts = new Array(range).fill(0);
+
+// Use (value - min) as index instead of value
+for (let i = 0; i < list.length; i++) {
+  counts[list[i] - min]++;
+}
+```
+
+## Breaking the O(n log n) Barrier
+
+<Info>
+**Why Comparison Sorts Can't Beat O(n log n):**
+
+Comparison-based sorting algorithms have a lower bound of Ω(n log n). This is because:
+- n! possible permutations exist for n elements
+- A decision tree needs log₂(n!) ≈ n log n height
+- Each comparison reduces possibilities by at most half
+
+**How Counting Sort Breaks This Barrier:**
+
+Counting Sort doesn't compare elements - it uses them as array indices. By avoiding comparisons, it bypasses the O(n log n) lower bound and achieves O(n + k) linear time.
+</Info>

@@ -1,0 +1,310 @@
+---
+title: 'Doubly Linked List'
+description: 'Implementation and API reference for doubly linked list data structure'
+icon: 'link-horizontal'
+---
+
+# Doubly Linked List
+
+A linear data structure where each node contains a value and references to both the next and previous nodes, enabling bidirectional traversal.
+
+## Overview
+
+Doubly linked lists provide efficient insertion and deletion at both ends (O(1)) and support backward traversal. The trade-off is extra memory for the previous pointer.
+
+## Implementation
+
+### Node Structure
+
+```typescript
+class Node<T = number> {
+  value: T;
+  next: Node<T> | null = null;
+  prev: Node<T> | null = null;
+
+  constructor(value: T) {
+    this.value = value;
+  }
+}
+```
+
+**Reference**: [node.ts:1-10](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/node.ts)
+
+### Class Definition
+
+```typescript
+class DoublyLinkedList<T = number> {
+  head: Node<T> | null = null;
+  tail: Node<T> | null = null;
+  size = 0;
+  
+  // ... methods
+}
+```
+
+**Reference**: [doubly-linked-list.ts:3-6](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/doubly-linked-list.ts)
+
+## API Reference
+
+### push(value: T): void
+
+Adds an element to the end of the linked list.
+
+```typescript
+const list = new DoublyLinkedList<number>();
+list.push(1);
+list.push(2);
+list.push(3);
+// List: (1) <-> (2) <-> (3) <->
+```
+
+**Complexity**: O(1) - Direct access to tail
+
+**Reference**: [doubly-linked-list.ts:11-13](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/doubly-linked-list.ts)
+
+---
+
+### insert(value: T, index: number): void
+
+Inserts a new element at the specified position.
+
+```typescript
+const list = new DoublyLinkedList<number>();
+list.push(1);
+list.push(3);
+list.insert(2, 1);
+// List: (1) <-> (2) <-> (3) <->
+```
+
+**Parameters**:
+- `value`: The value to insert
+- `index`: Position to insert at (0-based)
+
+**Complexity**:
+- Insert at head: O(1)
+- Insert at tail: O(1)
+- Insert at arbitrary position: O(n)
+
+**Reference**: [doubly-linked-list.ts:18-76](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/doubly-linked-list.ts)
+
+---
+
+### pop(): Node&lt;T&gt; | null
+
+Removes and returns the last element from the linked list.
+
+```typescript
+const list = new DoublyLinkedList<number>();
+list.push(1);
+list.push(2);
+const last = list.pop(); // returns node with value 2
+// List: (1) <->
+```
+
+**Complexity**: O(1) - Direct access to tail and its prev pointer
+
+**Reference**: [doubly-linked-list.ts:81-111](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/doubly-linked-list.ts)
+
+---
+
+### at(index: number): Node&lt;T&gt; | null
+
+Returns the element at the given index without removing it.
+
+```typescript
+const list = new DoublyLinkedList<number>();
+list.push(1);
+list.push(2);
+list.push(3);
+const node = list.at(1); // returns node with value 2
+```
+
+**Complexity**: O(n)
+
+**Reference**: [doubly-linked-list.ts:116-129](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/doubly-linked-list.ts)
+
+---
+
+### remove(value: T): void
+
+Removes the first occurrence of an element from the list.
+
+```typescript
+const list = new DoublyLinkedList<number>();
+list.push(1);
+list.push(2);
+list.push(3);
+list.remove(2);
+// List: (1) <-> (3) <->
+```
+
+**Complexity**: O(n)
+
+**Reference**: [doubly-linked-list.ts:134-162](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/doubly-linked-list.ts)
+
+---
+
+### removeAt(index: number): void
+
+Removes an element from the specified position in the list.
+
+```typescript
+const list = new DoublyLinkedList<number>();
+list.push(1);
+list.push(2);
+list.push(3);
+list.removeAt(1);
+// List: (1) <-> (3) <->
+```
+
+**Complexity**:
+- Remove at head: O(1)
+- Remove at tail: O(1)
+- Remove at arbitrary position: O(n)
+
+**Reference**: [doubly-linked-list.ts:167-205](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/doubly-linked-list.ts)
+
+---
+
+### isEmpty(): boolean
+
+Returns true if the list is empty, false otherwise.
+
+```typescript
+const list = new DoublyLinkedList<number>();
+console.log(list.isEmpty()); // true
+list.push(1);
+console.log(list.isEmpty()); // false
+```
+
+**Complexity**: O(1)
+
+**Reference**: [doubly-linked-list.ts:210-212](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/doubly-linked-list.ts)
+
+---
+
+### toString(): string
+
+Returns a string representation of the list.
+
+```typescript
+const list = new DoublyLinkedList<number>();
+list.push(1);
+list.push(2);
+list.push(3);
+console.log(list.toString()); // "(1) <-> (2) <-> (3) <-> "
+```
+
+**Complexity**: O(n)
+
+**Reference**: [doubly-linked-list.ts:217-231](https://github.com/dfernandeza/data-structures-and-algorithms/blob/main/data-structures/lists/doubly-linked-lists/doubly-linked-list.ts)
+
+## Complexity Summary
+
+| Operation | Time Complexity | Space Complexity |
+|-----------|----------------|------------------|
+| push | O(1) | O(1) |
+| insert (head) | O(1) | O(1) |
+| insert (tail) | O(1) | O(1) |
+| insert (arbitrary) | O(n) | O(1) |
+| pop | O(1) | O(1) |
+| at | O(n) | O(1) |
+| remove | O(n) | O(1) |
+| removeAt (head) | O(1) | O(1) |
+| removeAt (tail) | O(1) | O(1) |
+| removeAt (arbitrary) | O(n) | O(1) |
+| isEmpty | O(1) | O(1) |
+| toString | O(n) | O(1) |
+
+## Comparison: Singly vs Doubly Linked List
+
+| Feature | Singly Linked List | Doubly Linked List |
+|---------|-------------------|--------------------|
+| Memory per node | 1 pointer | 2 pointers |
+| Traversal | Forward only | Bidirectional |
+| Insert at tail | O(n) | O(1) |
+| Delete from tail | O(n) | O(1) |
+| Delete with node reference | O(n) | O(1) |
+| Implementation complexity | Simple | Moderate |
+
+## Key Characteristics
+
+<Check>
+**Advantages:**
+- Bidirectional traversal
+- O(1) insertion/deletion at both ends
+- O(1) deletion with node reference
+- Easier implementation of certain algorithms
+</Check>
+
+<Warning>
+**Disadvantages:**
+- Extra memory for prev pointer (2x pointer storage)
+- More complex to maintain consistency
+- Slightly more overhead on insertions/deletions
+- Still no random access
+</Warning>
+
+## Use Cases
+
+- **Browser history**: Forward and backward navigation
+- **Music player**: Next/previous song functionality
+- **Undo/Redo**: Bidirectional state navigation
+- **LRU Cache**: Efficient removal and reordering
+- **Text editors**: Cursor movement and editing
+
+## Implementation Details
+
+### Maintaining Both Pointers
+
+When inserting a node, you must update:
+1. The new node's `next` and `prev` pointers
+2. The previous node's `next` pointer
+3. The next node's `prev` pointer
+
+```typescript
+// Example: Insert in middle
+const current = this.at(index - 1);
+const node = new Node(value);
+
+if (current) {
+  const temp = current.next;
+  current.next = node;
+  node.prev = current;
+  node.next = temp;
+  
+  if (temp) {
+    temp.prev = node;
+  }
+}
+```
+
+### Edge Cases to Handle
+
+<Accordion title="Empty List">
+When inserting into an empty list, both `head` and `tail` should point to the new node, and the node's `prev` and `next` should be `null`.
+</Accordion>
+
+<Accordion title="Single Element">
+When removing the only element, set both `head` and `tail` to `null`.
+</Accordion>
+
+<Accordion title="Head/Tail Operations">
+Always check if you're operating at boundaries and update both `head` and `tail` pointers appropriately.
+</Accordion>
+
+<Tip>
+**Performance Tip**: For better cache locality and reduced memory overhead in scenarios where backward traversal isn't needed, consider using a [Singly Linked List](/data-structures/linked-list) instead.
+</Tip>
+
+## Related Data Structures
+
+<CardGroup cols={2}>
+  <Card title="Singly Linked List" icon="link" href="/data-structures/linked-list">
+    Simpler alternative with forward-only traversal
+  </Card>
+  
+  <Card title="Deque" icon="layer-group">
+    Double-ended queue using doubly linked list
+  </Card>
+</CardGroup>

@@ -1,0 +1,120 @@
+---
+title: 'Bubble Sort'
+description: 'Simple comparison-based sorting algorithm that repeatedly steps through the list'
+---
+
+## Overview
+
+Bubble Sort is one of the simplest sorting algorithms that works by repeatedly stepping through the list, comparing adjacent elements and swapping them if they are in the wrong order. The pass through the list is repeated until the list is sorted.
+
+## Implementation
+
+```typescript
+export function bubbleSort(list: number[]) {
+  let unsorted = true;
+
+  while (unsorted) {
+    unsorted = false;
+
+    for (let i = 0; i < list.length; i++) {
+      if (list[i + 1] < list[i]) {
+        [list[i], list[i + 1]] = [list[i + 1], list[i]];
+        unsorted = true;
+      }
+    }
+  }
+
+  return list;
+}
+```
+
+## How It Works
+
+1. **Compare Adjacent Elements**: Start at the beginning of the array and compare each pair of adjacent elements
+2. **Swap if Necessary**: If the elements are in the wrong order, swap them
+3. **Repeat Until Sorted**: Continue making passes through the array until no more swaps are needed
+4. **Largest Elements "Bubble Up"**: In each pass, the largest unsorted element moves to its correct position at the end
+
+<Note>
+The algorithm gets its name because smaller elements gradually "bubble" to the top (beginning) of the list, while larger elements sink to the bottom (end).
+</Note>
+
+## Complexity Analysis
+
+<CardGroup cols={2}>
+  <Card title="Time Complexity" icon="clock">
+    - **Best Case**: O(n) - when array is already sorted
+    - **Average Case**: O(n²)
+    - **Worst Case**: O(n²) - when array is reverse sorted
+  </Card>
+  <Card title="Space Complexity" icon="memory">
+    - **Space**: O(1) - sorts in place
+    - **Auxiliary**: O(1) - only uses a few variables
+  </Card>
+</CardGroup>
+
+## Usage Example
+
+```typescript
+import { bubbleSort } from './bubble-sort';
+
+// Example 1: Sort a simple array
+const numbers = [64, 34, 25, 12, 22, 11, 90];
+const sorted = bubbleSort(numbers);
+console.log(sorted); // [11, 12, 22, 25, 34, 64, 90]
+
+// Example 2: Already sorted array (best case)
+const alreadySorted = [1, 2, 3, 4, 5];
+bubbleSort(alreadySorted); // [1, 2, 3, 4, 5]
+
+// Example 3: Reverse sorted array (worst case)
+const reverseSorted = [5, 4, 3, 2, 1];
+bubbleSort(reverseSorted); // [1, 2, 3, 4, 5]
+```
+
+## Characteristics
+
+<AccordionGroup>
+  <Accordion title="Stability">
+    Bubble Sort is **stable** - it maintains the relative order of equal elements.
+  </Accordion>
+  
+  <Accordion title="In-Place">
+    Yes, Bubble Sort is an **in-place** algorithm. It only requires a constant amount O(1) of additional memory space.
+  </Accordion>
+  
+  <Accordion title="Adaptive">
+    Bubble Sort can be made **adaptive** by detecting if no swaps were made in a pass, indicating the array is sorted.
+  </Accordion>
+  
+  <Accordion title="Online">
+    No, Bubble Sort is **not online**. It needs the entire dataset before it can start sorting.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use
+
+<Warning>
+Bubble Sort is generally inefficient for large datasets and is rarely used in practice.
+</Warning>
+
+**Good for:**
+- Educational purposes to understand sorting algorithms
+- Very small datasets (n < 10)
+- Nearly sorted data where only a few passes are needed
+- When simplicity and ease of implementation are priorities
+
+**Avoid when:**
+- Working with large datasets
+- Performance is critical
+- Better alternatives like Quick Sort or Merge Sort are available
+
+## Comparison with Other Sorts
+
+| Algorithm | Best Case | Average Case | Worst Case | Space | Stable |
+|-----------|-----------|--------------|------------|-------|--------|
+| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | Yes |
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes |
+| Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | No |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No |

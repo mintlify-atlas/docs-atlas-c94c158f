@@ -1,0 +1,397 @@
+---
+title: 'Dynamic Programming'
+description: 'Master dynamic programming for solving optimization problems with overlapping subproblems'
+---
+
+## Overview
+
+Dynamic Programming (DP) is a powerful algorithm design technique for solving optimization problems by breaking them down into simpler **overlapping subproblems**. Unlike divide and conquer, DP stores the results of subproblems to avoid redundant calculations.
+
+<Note>
+The key insight of dynamic programming: "Those who cannot remember the past are condemned to repeat it." By remembering solutions to subproblems, we dramatically improve efficiency.
+</Note>
+
+## Core Concept
+
+As described in [GeeksforGeeks](https://www.geeksforgeeks.org/algorithms-design-techniques/):
+
+> "Whenever we have recursive function calls with the same result, instead of calling them again we try to store the result in a data structure in the form of a table and retrieve the results from the table. Thus, the overall time complexity is reduced. 'Dynamic' means we dynamically decide, whether to call a function or retrieve values from the table."
+
+## Two Approaches
+
+<CardGroup cols={2}>
+  <Card title="Top-Down (Memoization)" icon="arrow-down">
+    Start with the original problem and recursively break it down, storing results in a cache
+    
+    ```typescript
+    const memo = new Map();
+    
+    function solve(n) {
+      if (memo.has(n)) return memo.get(n);
+      
+      const result = /* compute */;
+      memo.set(n, result);
+      return result;
+    }
+    ```
+  </Card>
+  
+  <Card title="Bottom-Up (Tabulation)" icon="arrow-up">
+    Start with the smallest subproblems and build up to the original problem using a table
+    
+    ```typescript
+    function solve(n) {
+      const dp = new Array(n + 1);
+      dp[0] = /* base case */;
+      
+      for (let i = 1; i <= n; i++) {
+        dp[i] = /* compute from previous */;
+      }
+      
+      return dp[n];
+    }
+    ```
+  </Card>
+</CardGroup>
+
+## Problem: Longest Common Subsequence (LCS)
+
+<AccordionGroup>
+  <Accordion title="Problem Description">
+    Given two sequences, find the length of the longest subsequence present in both of them. A subsequence is a sequence that appears in the same relative order, but not necessarily contiguous.
+    
+    **Example:**
+    ```
+    Input:  str1 = "ABCDGH"
+            str2 = "AEDFHR"
+    Output: 3
+    Explanation: LCS is "ADH" with length 3
+    ```
+    
+    **Other examples of subsequences:**
+    - For `abcdefg`: `abc`, `abg`, `bdf`, `aeg`, `acefg` are all valid subsequences
+  </Accordion>
+
+  <Accordion title="Solution Approach">
+    We'll use a 2D table where `dp[i][j]` represents the length of LCS for the first `i` characters of string A and first `j` characters of string B.
+    
+    **Recurrence relation:**
+    - If `strA[i-1] == strB[j-1]`: `dp[i][j] = dp[i-1][j-1] + 1`
+    - Otherwise: `dp[i][j] = max(dp[i-1][j], dp[i][j-1])`
+    
+    **Visual representation:**
+    ```
+         "" A  B  C  D  G  H
+    ""   0  0  0  0  0  0  0
+    A    0  1  1  1  1  1  1
+    E    0  1  1  1  1  1  1
+    D    0  1  1  1  2  2  2
+    F    0  1  1  1  2  2  2
+    H    0  1  1  1  2  2  3  ← Result
+    R    0  1  1  1  2  2  3
+    ```
+  </Accordion>
+
+  <Accordion title="Implementation">
+    ```typescript
+    function longestCommonSubsequence(strA: string, strB: string): number {
+      const matrix: number[][] = [];
+      
+      // Initialize matrix with zeros
+      for (let i = 0; i <= strB.length; i++) {
+        matrix[i] = [];
+        for (let j = 0; j <= strA.length; j++) {
+          matrix[i][j] = 0;
+        }
+      }
+      
+      // Fill the matrix using DP
+      for (let i = 1; i <= strB.length; i++) {
+        for (let j = 1; j <= strA.length; j++) {
+          if (strB[i - 1] === strA[j - 1]) {
+            // Characters match: extend previous LCS
+            matrix[i][j] = matrix[i - 1][j - 1] + 1;
+          } else {
+            // Characters don't match: take maximum from left or top
+            matrix[i][j] = Math.max(
+              matrix[i - 1][j],
+              matrix[i][j - 1]
+            );
+          }
+        }
+      }
+      
+      // Result is in bottom-right cell
+      return matrix[strB.length][strA.length];
+    }
+    
+    // Usage
+    const strA = 'ABCDGH';
+    const strB = 'AEDFHR';
+    const lcsLength = longestCommonSubsequence(strA, strB);
+    console.log(lcsLength); // Output: 3 (for "ADH")
+    ```
+  </Accordion>
+
+  <Accordion title="Complexity Analysis">
+    - **Time Complexity**: O(m × n)
+      - Where m and n are the lengths of the two strings
+      - We fill each cell of the matrix exactly once
+    
+    - **Space Complexity**: O(m × n)
+      - For the DP table
+      - Can be optimized to O(min(m, n)) by keeping only two rows
+  </Accordion>
+
+  <Accordion title="Space Optimization">
+    Since we only need the previous row to compute the current row, we can optimize space:
+    
+    ```typescript
+    function longestCommonSubsequenceOptimized(
+      strA: string,
+      strB: string
+    ): number {
+      // Ensure strA is the shorter string
+      if (strA.length > strB.length) {
+        [strA, strB] = [strB, strA];
+      }
+      
+      let prev = new Array(strA.length + 1).fill(0);
+      let curr = new Array(strA.length + 1).fill(0);
+      
+      for (let i = 1; i <= strB.length; i++) {
+        for (let j = 1; j <= strA.length; j++) {
+          if (strB[i - 1] === strA[j - 1]) {
+            curr[j] = prev[j - 1] + 1;
+          } else {
+            curr[j] = Math.max(prev[j], curr[j - 1]);
+          }
+        }
+        [prev, curr] = [curr, prev];
+      }
+      
+      return prev[strA.length];
+    }
+    ```
+    
+    This reduces space complexity to **O(min(m, n))**.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use Dynamic Programming
+
+<CardGroup cols={2}>
+  <Card title="Use When" icon="check">
+    - Problem has overlapping subproblems
+    - Problem has optimal substructure
+    - Need to find optimal solution (min/max)
+    - Counting problems (number of ways)
+    - Can define recurrence relation
+  </Card>
+  
+  <Card title="Avoid When" icon="xmark">
+    - Subproblems are independent (use D&C)
+    - Greedy choice property exists
+    - Memory is severely constrained
+    - Problem doesn't have optimal substructure
+    - Simpler iterative solution exists
+  </Card>
+</CardGroup>
+
+## Identifying DP Problems
+
+<Steps>
+  <Step title="Check for Optimal Substructure">
+    Can the optimal solution be constructed from optimal solutions of subproblems?
+  </Step>
+  
+  <Step title="Look for Overlapping Subproblems">
+    Are the same subproblems being solved multiple times?
+  </Step>
+  
+  <Step title="Define State">
+    What parameters uniquely identify each subproblem?
+  </Step>
+  
+  <Step title="Write Recurrence Relation">
+    How does the solution to a problem relate to solutions of smaller problems?
+  </Step>
+  
+  <Step title="Identify Base Cases">
+    What are the simplest subproblems with known solutions?
+  </Step>
+</Steps>
+
+## Classic DP Problem Patterns
+
+<AccordionGroup>
+  <Accordion title="1. Linear DP (1D)">
+    **Examples**: Fibonacci, Climbing Stairs, House Robber
+    
+    ```typescript
+    // State: dp[i] represents solution for position i
+    dp[i] = f(dp[i-1], dp[i-2], ...)
+    ```
+  </Accordion>
+
+  <Accordion title="2. Grid DP (2D)">
+    **Examples**: Longest Common Subsequence, Edit Distance, Unique Paths
+    
+    ```typescript
+    // State: dp[i][j] represents solution for position (i,j)
+    dp[i][j] = f(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+    ```
+  </Accordion>
+
+  <Accordion title="3. Knapsack Problems">
+    **Examples**: 0/1 Knapsack, Subset Sum, Partition Equal Subset Sum
+    
+    ```typescript
+    // State: dp[i][w] = max value using first i items with weight w
+    dp[i][w] = max(dp[i-1][w], value[i] + dp[i-1][w-weight[i]])
+    ```
+  </Accordion>
+
+  <Accordion title="4. Interval DP">
+    **Examples**: Matrix Chain Multiplication, Palindrome Partitioning
+    
+    ```typescript
+    // State: dp[i][j] represents solution for interval [i, j]
+    dp[i][j] = min/max(dp[i][k] + dp[k+1][j]) for all k
+    ```
+  </Accordion>
+
+  <Accordion title="5. Tree DP">
+    **Examples**: House Robber III, Binary Tree Maximum Path Sum
+    
+    ```typescript
+    // State: dp[node] depends on dp[left] and dp[right]
+    function solve(node) {
+      return combine(solve(node.left), solve(node.right))
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## DP Strategy: The Four Steps
+
+<CodeGroup>
+```typescript Step 1: Define State
+// What does dp[i] or dp[i][j] represent?
+// Example: dp[i] = number of ways to reach step i
+const dp: number[] = [];
+```
+
+```typescript Step 2: Initialize Base Cases
+// What are the smallest subproblems?
+// Example: There's one way to stay at step 0
+dp[0] = 1;
+dp[1] = 1;
+```
+
+```typescript Step 3: Define Recurrence
+// How to compute dp[i] from previous states?
+// Example: Can reach step i from i-1 or i-2
+for (let i = 2; i <= n; i++) {
+  dp[i] = dp[i - 1] + dp[i - 2];
+}
+```
+
+```typescript Step 4: Return Final Answer
+// Where is the answer stored?
+// Example: Answer is at the last step
+return dp[n];
+```
+</CodeGroup>
+
+## Memoization vs Tabulation
+
+| Aspect | Memoization (Top-Down) | Tabulation (Bottom-Up) |
+|--------|------------------------|------------------------|
+| Direction | Recursive, starts from main problem | Iterative, starts from base cases |
+| Implementation | Easier to write from recursion | Requires careful ordering |
+| Space | Only computes needed subproblems | Computes all subproblems |
+| Stack | Uses recursion stack | No recursion overhead |
+| Debugging | Harder to debug | Easier to trace |
+
+<Tip>
+Start with memoization for easier conversion from recursive solution, then optimize to tabulation if needed for better performance.
+</Tip>
+
+## Common DP Optimizations
+
+<AccordionGroup>
+  <Accordion title="Space Optimization">
+    If `dp[i]` only depends on `dp[i-1]` and `dp[i-2]`, use two variables instead of an array:
+    
+    ```typescript
+    // Instead of: dp[i] = dp[i-1] + dp[i-2]
+    let prev2 = 0, prev1 = 1;
+    for (let i = 0; i < n; i++) {
+      const curr = prev1 + prev2;
+      prev2 = prev1;
+      prev1 = curr;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Rolling Array">
+    For 2D DP, use two rows instead of full matrix:
+    
+    ```typescript
+    // Instead of: dp[i][j] = dp[i-1][j] + dp[i][j-1]
+    let prev = new Array(cols).fill(0);
+    let curr = new Array(cols).fill(0);
+    // ... compute curr from prev
+    [prev, curr] = [curr, prev]; // swap
+    ```
+  </Accordion>
+
+  <Accordion title="State Compression">
+    Use bitmasking for subset-based states:
+    
+    ```typescript
+    // Instead of: dp[included[]]
+    // Use: dp[mask] where mask represents included set
+    const dp = new Array(1 << n).fill(0);
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Dynamic programming can be memory-intensive. Always consider space optimization techniques, especially for problems with large input sizes.
+</Warning>
+
+## Tips and Best Practices
+
+<Tip>
+**Start with Recursion**: Write a recursive solution first, identify overlapping subproblems, then add memoization.
+</Tip>
+
+<Tip>
+**Draw the DP Table**: Visualizing how the table fills up helps understand the problem and catch bugs.
+</Tip>
+
+<Tip>
+**Define States Clearly**: The most important step is correctly defining what each DP state represents.
+</Tip>
+
+<Tip>
+**Check Dependencies**: Ensure you compute subproblems before they're needed (important for tabulation).
+</Tip>
+
+## Related Topics
+
+<CardGroup cols={3}>
+  <Card title="Divide and Conquer" icon="scissors" href="/algorithms/design-techniques/divide-and-conquer">
+    For independent subproblems
+  </Card>
+  
+  <Card title="Greedy Algorithms" icon="gauge-high" href="/algorithms/design-techniques/greedy">
+    For problems with greedy choice property
+  </Card>
+  
+  <Card title="Backtracking" icon="rotate-left" href="/algorithms/design-techniques/backtracking">
+    For exploring all possibilities
+  </Card>
+</CardGroup>

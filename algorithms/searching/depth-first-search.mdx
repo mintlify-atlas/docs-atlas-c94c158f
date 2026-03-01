@@ -1,0 +1,673 @@
+---
+title: 'Depth-first search'
+description: 'A graph traversal algorithm that explores as far as possible along each branch'
+icon: 'sitemap'
+keywords: ['depth-first search', 'DFS', 'graph traversal', 'tree traversal', 'backtracking']
+---
+
+Depth-first search (DFS) is a graph and tree traversal algorithm that explores as far as possible along each branch before backtracking.
+
+## Algorithm overview
+
+DFS starts at a root node and explores each branch completely before moving to the next branch. It uses a stack data structure (or recursion, which implicitly uses the call stack) to keep track of nodes to visit.
+
+### Key characteristics
+
+- Explores depth-first, branch by branch
+- Uses a stack (LIFO) or recursion
+- Memory efficient for sparse graphs
+- Natural fit for recursive problems
+- Used in topological sorting and cycle detection
+
+<Info>
+  The implementation for DFS is not currently available in the source repository. This documentation describes the algorithm conceptually and provides example implementations.
+</Info>
+
+## How it works
+
+The DFS algorithm follows these steps:
+
+<Steps>
+  <Step title="Initialize">
+    - Create a stack (or use recursion)
+    - Mark the starting node as visited
+    - Create a set to track visited nodes
+  </Step>
+  
+  <Step title="Explore depth">
+    For each node:
+    - Process the current node
+    - Pick an unvisited neighbor
+    - Recursively visit that neighbor
+    - Backtrack when no unvisited neighbors remain
+  </Step>
+  
+  <Step title="Complete">
+    Continue until all reachable nodes are visited
+  </Step>
+</Steps>
+
+## Implementation examples
+
+### Recursive DFS for graphs
+
+```typescript
+interface GraphNode<T> {
+  value: T;
+  neighbors: GraphNode<T>[];
+}
+
+function depthFirstSearch<T>(
+  node: GraphNode<T>,
+  target: T,
+  visited = new Set<GraphNode<T>>()
+): GraphNode<T> | null {
+  // Mark current node as visited
+  visited.add(node);
+
+  // Check if we found the target
+  if (node.value === target) {
+    return node;
+  }
+
+  // Recursively search neighbors
+  for (const neighbor of node.neighbors) {
+    if (!visited.has(neighbor)) {
+      const result = depthFirstSearch(neighbor, target, visited);
+      if (result) return result;
+    }
+  }
+
+  return null;
+}
+```
+
+### Iterative DFS with stack
+
+```typescript
+function dfsIterative<T>(
+  start: GraphNode<T>,
+  target: T
+): GraphNode<T> | null {
+  const stack: GraphNode<T>[] = [start];
+  const visited = new Set<GraphNode<T>>();
+
+  while (stack.length > 0) {
+    const current = stack.pop()!;
+
+    if (visited.has(current)) continue;
+    visited.add(current);
+
+    if (current.value === target) {
+      return current;
+    }
+
+    // Add neighbors in reverse order to maintain left-to-right traversal
+    for (let i = current.neighbors.length - 1; i >= 0; i--) {
+      const neighbor = current.neighbors[i];
+      if (!visited.has(neighbor)) {
+        stack.push(neighbor);
+      }
+    }
+  }
+
+  return null;
+}
+```
+
+### DFS for binary trees
+
+```typescript
+interface TreeNode<T> {
+  value: T;
+  left: TreeNode<T> | null;
+  right: TreeNode<T> | null;
+}
+
+// Pre-order traversal (node, left, right)
+function dfsPreOrder<T>(root: TreeNode<T> | null): T[] {
+  if (!root) return [];
+
+  return [
+    root.value,
+    ...dfsPreOrder(root.left),
+    ...dfsPreOrder(root.right)
+  ];
+}
+
+// In-order traversal (left, node, right)
+function dfsInOrder<T>(root: TreeNode<T> | null): T[] {
+  if (!root) return [];
+
+  return [
+    ...dfsInOrder(root.left),
+    root.value,
+    ...dfsInOrder(root.right)
+  ];
+}
+
+// Post-order traversal (left, right, node)
+function dfsPostOrder<T>(root: TreeNode<T> | null): T[] {
+  if (!root) return [];
+
+  return [
+    ...dfsPostOrder(root.left),
+    ...dfsPostOrder(root.right),
+    root.value
+  ];
+}
+```
+
+### DFS with path tracking
+
+```typescript
+function dfsWithPath<T>(
+  node: GraphNode<T>,
+  target: T,
+  path: GraphNode<T>[] = [],
+  visited = new Set<GraphNode<T>>()
+): GraphNode<T>[] | null {
+  visited.add(node);
+  path.push(node);
+
+  if (node.value === target) {
+    return path;
+  }
+
+  for (const neighbor of node.neighbors) {
+    if (!visited.has(neighbor)) {
+      const result = dfsWithPath(
+        neighbor,
+        target,
+        [...path],
+        visited
+      );
+      if (result) return result;
+    }
+  }
+
+  return null;
+}
+```
+
+## Complexity analysis
+
+<AccordionGroup>
+  <Accordion title="Time complexity">
+    **O(V + E)** where V is vertices and E is edges
+    
+    - Each vertex is visited exactly once
+    - Each edge is explored exactly once (twice for undirected graphs)
+    - For trees: O(n) where n is the number of nodes
+    
+    The algorithm must explore every reachable node and edge.
+  </Accordion>
+  
+  <Accordion title="Space complexity">
+    **O(V)** where V is the number of vertices
+    
+    - **Recursive**: O(h) for call stack where h is maximum depth
+    - **Iterative**: O(V) for explicit stack
+    - Visited set stores all visited nodes: O(V)
+    
+    For balanced trees, space is O(log n). For skewed trees or deep graphs, space can be O(n).
+  </Accordion>
+</AccordionGroup>
+
+## Visualization
+
+Consider this graph:
+
+```
+     A
+   / | \
+  B  C  D
+  |  |  |
+  E  F  G
+```
+
+DFS starting from A (exploring left-to-right):
+
+<Steps>
+  <Step title="Visit A">
+    Current: **A**
+    
+    Stack: []
+    
+    Go to first neighbor: B
+  </Step>
+  
+  <Step title="Visit B">
+    Current: **B**
+    
+    Stack: [C, D]
+    
+    Go to first neighbor: E
+  </Step>
+  
+  <Step title="Visit E">
+    Current: **E**
+    
+    Stack: [C, D]
+    
+    No neighbors, backtrack to B, then A
+  </Step>
+  
+  <Step title="Visit C">
+    Current: **C**
+    
+    Stack: [D]
+    
+    Go to first neighbor: F
+  </Step>
+  
+  <Step title="Visit F">
+    Current: **F**
+    
+    Stack: [D]
+    
+    No neighbors, backtrack
+  </Step>
+  
+  <Step title="Visit D and G">
+    Current: **D**, then **G**
+    
+    Stack: []
+    
+    Complete traversal
+  </Step>
+</Steps>
+
+Order: A → B → E → C → F → D → G
+
+## Usage examples
+
+### Cycle detection
+
+```typescript
+function hasCycle(
+  graph: Record<string, string[]>
+): boolean {
+  const visited = new Set<string>();
+  const recursionStack = new Set<string>();
+
+  function dfs(node: string): boolean {
+    visited.add(node);
+    recursionStack.add(node);
+
+    for (const neighbor of graph[node] || []) {
+      if (!visited.has(neighbor)) {
+        if (dfs(neighbor)) return true;
+      } else if (recursionStack.has(neighbor)) {
+        return true; // Cycle detected
+      }
+    }
+
+    recursionStack.delete(node);
+    return false;
+  }
+
+  for (const node in graph) {
+    if (!visited.has(node)) {
+      if (dfs(node)) return true;
+    }
+  }
+
+  return false;
+}
+```
+
+### Topological sort
+
+```typescript
+function topologicalSort(
+  graph: Record<string, string[]>
+): string[] {
+  const visited = new Set<string>();
+  const result: string[] = [];
+
+  function dfs(node: string) {
+    visited.add(node);
+
+    for (const neighbor of graph[node] || []) {
+      if (!visited.has(neighbor)) {
+        dfs(neighbor);
+      }
+    }
+
+    result.unshift(node); // Add to front
+  }
+
+  for (const node in graph) {
+    if (!visited.has(node)) {
+      dfs(node);
+    }
+  }
+
+  return result;
+}
+
+const graph = {
+  A: ['B', 'C'],
+  B: ['D'],
+  C: ['D'],
+  D: []
+};
+
+console.log(topologicalSort(graph));
+// Output: ['A', 'C', 'B', 'D'] or ['A', 'B', 'C', 'D']
+```
+
+### Finding all paths
+
+```typescript
+function findAllPaths(
+  graph: Record<string, string[]>,
+  start: string,
+  end: string
+): string[][] {
+  const allPaths: string[][] = [];
+
+  function dfs(node: string, path: string[], visited: Set<string>) {
+    if (node === end) {
+      allPaths.push([...path]);
+      return;
+    }
+
+    for (const neighbor of graph[node] || []) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        path.push(neighbor);
+        dfs(neighbor, path, visited);
+        path.pop();
+        visited.delete(neighbor);
+      }
+    }
+  }
+
+  const visited = new Set<string>([start]);
+  dfs(start, [start], visited);
+  return allPaths;
+}
+
+const graph = {
+  A: ['B', 'C'],
+  B: ['D'],
+  C: ['D'],
+  D: []
+};
+
+console.log(findAllPaths(graph, 'A', 'D'));
+// Output: [['A', 'B', 'D'], ['A', 'C', 'D']]
+```
+
+### Connected components
+
+```typescript
+function countConnectedComponents(
+  graph: Record<string, string[]>
+): number {
+  const visited = new Set<string>();
+  let components = 0;
+
+  function dfs(node: string) {
+    visited.add(node);
+
+    for (const neighbor of graph[node] || []) {
+      if (!visited.has(neighbor)) {
+        dfs(neighbor);
+      }
+    }
+  }
+
+  for (const node in graph) {
+    if (!visited.has(node)) {
+      dfs(node);
+      components++;
+    }
+  }
+
+  return components;
+}
+```
+
+## When to use DFS
+
+<Columns cols={2}>
+  <Card title="Good for" icon="check">
+    - Topological sorting
+    - Cycle detection
+    - Finding connected components
+    - Solving mazes and puzzles
+    - Path finding (any path, not shortest)
+    - Tree traversals (pre/in/post-order)
+    - Backtracking problems
+  </Card>
+  
+  <Card title="Avoid when" icon="xmark">
+    - Need shortest path
+    - Graph is very deep (stack overflow risk)
+    - Need to explore by levels
+    - Want all nodes at distance k
+  </Card>
+</Columns>
+
+## Tree traversal orders
+
+DFS is used to implement three standard tree traversal orders:
+
+<Tabs>
+  <Tab title="Pre-order">
+    Visit node **before** children: Node → Left → Right
+    
+    ```typescript
+    function preOrder(node: TreeNode | null) {
+      if (!node) return;
+      process(node);        // Visit node first
+      preOrder(node.left);  // Then left
+      preOrder(node.right); // Then right
+    }
+    ```
+    
+    **Use cases**:
+    - Creating a copy of the tree
+    - Getting prefix expression
+    - Tree serialization
+  </Tab>
+  
+  <Tab title="In-order">
+    Visit node **between** children: Left → Node → Right
+    
+    ```typescript
+    function inOrder(node: TreeNode | null) {
+      if (!node) return;
+      inOrder(node.left);   // Left first
+      process(node);        // Then node
+      inOrder(node.right);  // Then right
+    }
+    ```
+    
+    **Use cases**:
+    - Binary search trees (returns sorted order)
+    - Getting infix expression
+  </Tab>
+  
+  <Tab title="Post-order">
+    Visit node **after** children: Left → Right → Node
+    
+    ```typescript
+    function postOrder(node: TreeNode | null) {
+      if (!node) return;
+      postOrder(node.left);  // Left first
+      postOrder(node.right); // Then right
+      process(node);         // Visit node last
+    }
+    ```
+    
+    **Use cases**:
+    - Deleting the tree
+    - Getting postfix expression
+    - Calculating directory sizes
+  </Tab>
+</Tabs>
+
+## Recursive vs iterative
+
+<Tabs>
+  <Tab title="Recursive">
+    ### Advantages
+    - Cleaner and more intuitive code
+    - Natural fit for tree structures
+    - Automatic backtracking
+    - Easier to implement
+    
+    ### Disadvantages
+    - Risk of stack overflow on deep graphs
+    - Less control over traversal
+    - Hidden space complexity
+    
+    ### Use when
+    - Working with trees
+    - Maximum depth is bounded
+    - Code clarity is important
+  </Tab>
+  
+  <Tab title="Iterative">
+    ### Advantages
+    - No stack overflow risk
+    - More control over traversal
+    - Can pause and resume
+    - Explicit space usage
+    
+    ### Disadvantages
+    - More complex code
+    - Manual stack management
+    - Harder to implement variations
+    
+    ### Use when
+    - Dealing with very deep structures
+    - Need to control memory usage
+    - Want to pause/resume traversal
+  </Tab>
+</Tabs>
+
+## Common applications
+
+### Solving mazes
+
+```typescript
+interface Cell {
+  row: number;
+  col: number;
+}
+
+function solveMaze(
+  maze: number[][],
+  start: Cell,
+  end: Cell
+): Cell[] | null {
+  const rows = maze.length;
+  const cols = maze[0].length;
+  const visited = new Set<string>();
+
+  function key(cell: Cell): string {
+    return `${cell.row},${cell.col}`;
+  }
+
+  function isValid(cell: Cell): boolean {
+    return (
+      cell.row >= 0 &&
+      cell.row < rows &&
+      cell.col >= 0 &&
+      cell.col < cols &&
+      maze[cell.row][cell.col] === 0 &&
+      !visited.has(key(cell))
+    );
+  }
+
+  function dfs(cell: Cell, path: Cell[]): Cell[] | null {
+    if (cell.row === end.row && cell.col === end.col) {
+      return path;
+    }
+
+    visited.add(key(cell));
+
+    // Try all four directions
+    const directions = [
+      { row: cell.row - 1, col: cell.col }, // Up
+      { row: cell.row + 1, col: cell.col }, // Down
+      { row: cell.row, col: cell.col - 1 }, // Left
+      { row: cell.row, col: cell.col + 1 }  // Right
+    ];
+
+    for (const next of directions) {
+      if (isValid(next)) {
+        const result = dfs(next, [...path, next]);
+        if (result) return result;
+      }
+    }
+
+    return null;
+  }
+
+  return dfs(start, [start]);
+}
+```
+
+### Directory tree traversal
+
+```typescript
+interface FileNode {
+  name: string;
+  type: 'file' | 'directory';
+  children?: FileNode[];
+  size?: number;
+}
+
+function calculateSize(node: FileNode): number {
+  if (node.type === 'file') {
+    return node.size || 0;
+  }
+
+  let totalSize = 0;
+  for (const child of node.children || []) {
+    totalSize += calculateSize(child);
+  }
+
+  return totalSize;
+}
+
+function findLargeDirectories(
+  root: FileNode,
+  minSize: number
+): string[] {
+  const result: string[] = [];
+
+  function dfs(node: FileNode, path: string) {
+    if (node.type === 'directory') {
+      const size = calculateSize(node);
+      if (size >= minSize) {
+        result.push(`${path}/${node.name} (${size} bytes)`);
+      }
+
+      for (const child of node.children || []) {
+        dfs(child, `${path}/${node.name}`);
+      }
+    }
+  }
+
+  dfs(root, '');
+  return result;
+}
+```
+
+## Related algorithms
+
+<CardGroup cols={2}>
+  <Card title="Breadth-first search" icon="diagram-project" href="/algorithms/searching/breadth-first-search">
+    Level-by-level graph traversal algorithm
+  </Card>
+  <Card title="Binary search" icon="code-branch" href="/algorithms/searching/binary-search">
+    Efficient search in sorted arrays
+  </Card>
+</CardGroup>
